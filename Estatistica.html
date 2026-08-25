@@ -1,0 +1,751 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>As Quatro Perguntas — Estatística Aplicada · SENAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#222D3B; --bg2:#1B2531; --bg3:#273343;
+ --ink:#E8EEF4; --muted:#93A4B7; --faint:#5E7186;
+ --line:rgba(143,164,183,.12); --bru:rgba(143,164,183,.55);
+ --v1:#9168D6; --v2:#4F86C6; --v3:#2FB89A; --v4:#56C877; --v5:#B5DC4A; --v6:#F4ED45;
+ --c1:#4F86C6; --c2:#2FB89A; --c3:#B5DC4A; --c4:#9168D6;
+ --good:#56C877; --bad:#F4ED45;
+ --serif:'Lora',Georgia,serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+ --spectral:linear-gradient(90deg,var(--v1),var(--v2),var(--v3),var(--v4),var(--v5),var(--v6));
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:var(--body);color:var(--ink);overflow:hidden;-webkit-font-smoothing:antialiased;background:var(--bg)}
+.deck{position:fixed;inset:0;background:
+  linear-gradient(rgba(143,164,183,.04) 1px,transparent 1px) 0 0/34px 34px,
+  linear-gradient(90deg,rgba(143,164,183,.04) 1px,transparent 1px) 0 0/34px 34px,
+  radial-gradient(1100px 700px at 80% 8%, rgba(47,184,154,.06), transparent 60%),
+  radial-gradient(900px 650px at 10% 92%, rgba(145,104,214,.06), transparent 60%),
+  linear-gradient(160deg,var(--bg),var(--bg2))}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:5.4vh 6vw 6.4vh;opacity:0;transition:opacity .5s}
+.slide.active{display:flex;opacity:1}
+.frame{position:relative;--c:var(--bru);background:
+  linear-gradient(var(--c),var(--c)) 0 0/18px 2px no-repeat,linear-gradient(var(--c),var(--c)) 0 0/2px 18px no-repeat,
+  linear-gradient(var(--c),var(--c)) 100% 0/18px 2px no-repeat,linear-gradient(var(--c),var(--c)) 100% 0/2px 18px no-repeat,
+  linear-gradient(var(--c),var(--c)) 0 100%/18px 2px no-repeat,linear-gradient(var(--c),var(--c)) 0 100%/2px 18px no-repeat,
+  linear-gradient(var(--c),var(--c)) 100% 100%/18px 2px no-repeat,linear-gradient(var(--c),var(--c)) 100% 100%/2px 18px no-repeat}
+.eyebrow{font-family:var(--mono);font-size:clamp(10px,1vw,12.5px);letter-spacing:2.6px;text-transform:uppercase;color:var(--v3);display:flex;align-items:center;gap:11px;margin-bottom:2vh}
+.eyebrow::before{content:"";width:28px;height:2px;background:var(--spectral);flex:none}
+.eyebrow.k1{color:var(--c1)}.eyebrow.k2{color:var(--c2)}.eyebrow.k3{color:var(--c3)}.eyebrow.k4{color:var(--c4)}
+.title{font-family:var(--serif);font-weight:600;font-size:clamp(26px,3.9vw,50px);line-height:1.06;letter-spacing:-.5px}
+.title.sm{font-size:clamp(23px,3.2vw,40px)}
+.spectral-text{background:var(--spectral);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:clamp(14px,1.55vw,19px);color:var(--muted);max-width:50ch;line-height:1.55;margin-top:1.8vh}
+.lede .hl{color:var(--ink);font-weight:500}
+.cap{font-family:var(--mono);font-size:clamp(11px,1.05vw,13px);color:var(--muted);line-height:1.5}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,3.2vw,52px);align-items:center;flex:1;min-height:0}
+.cols.r{grid-template-columns:1.06fr .94fr}.cols.l{grid-template-columns:.94fr 1.06fr}
+.flush{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.viz{width:100%;display:flex;align-items:center;justify-content:center;min-height:0}
+.viz svg{width:100%;height:auto;max-height:70vh;display:block;overflow:visible}
+.note{padding:14px 17px;margin-top:13px}
+.note .nl{font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;color:var(--v3)}
+.note .nb{font-size:13.5px;color:#D6DEE7;line-height:1.5}
+.note .nb b{color:var(--ink);font-weight:600}
+.note.warn .nl{color:var(--v6)} .note.ok .nl{color:var(--v4)} .note.violet .nl{color:var(--v1)}
+.rules{list-style:none;margin-top:6px}
+.rules li{position:relative;padding-left:19px;margin-bottom:10px;font-size:clamp(13px,1.28vw,16px);color:#D2DAE2;max-width:46ch;line-height:1.45}
+.rules li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:2px;background:var(--v3)}
+.rules li.b2::before{background:var(--v5)}.rules li.b3::before{background:var(--v1)}.rules li.bad::before{background:var(--v6)}
+.rules li .k{color:var(--ink);font-weight:600}
+.eqimg{display:block;max-width:100%;max-height:80px;height:auto;width:auto;margin:10px 0}
+.eqwrap{display:flex;justify-content:center;margin:1.2vh 0}
+.eqbox{padding:16px 22px;margin:10px 0;display:inline-block}
+.bridge{font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.6px;margin-top:1.6vh;display:flex;gap:16px;flex-wrap:wrap}
+.bridge span{white-space:nowrap}
+.bridge b{color:var(--muted);font-weight:500}
+.trad{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;align-items:center;padding:16px 20px;margin-top:1.4vh}
+.trad .sy{font-family:var(--serif);font-size:clamp(17px,1.9vw,24px);color:var(--v6);text-align:center}
+.trad .rd{font-size:13.5px;color:#D2DAE2;line-height:1.4}
+.trad .rd i{color:var(--muted);font-style:normal;font-family:var(--mono);font-size:12px;display:block}
+.boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%}
+.boxes.q4{grid-template-columns:repeat(4,1fr)}
+.boxes.q2{grid-template-columns:repeat(2,1fr)}
+.box{padding:20px 19px;border-radius:6px;background:rgba(20,28,38,.55)}
+.box .n{font-family:var(--mono);font-size:11px;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:10px}
+.box .t{font-family:var(--serif);font-weight:600;font-size:clamp(17px,1.75vw,22px);margin-bottom:8px}
+.box .d{font-size:13.2px;color:var(--muted);line-height:1.5}
+.box.k1{border-top:2px solid var(--c1)}.box.k1 .n{color:var(--c1)}
+.box.k2{border-top:2px solid var(--c2)}.box.k2 .n{color:var(--c2)}
+.box.k3{border-top:2px solid var(--c3)}.box.k3 .n{color:var(--c3)}
+.box.k4{border-top:2px solid var(--c4)}.box.k4 .n{color:var(--c4)}
+.itable{display:grid;gap:0;width:100%;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.itable .h{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:12px 14px;color:var(--ink);background:rgba(20,28,38,.7);border-bottom:1px solid var(--line)}
+.itable .c{padding:11px 14px;font-size:13px;color:#D2DAE2;border-bottom:1px solid var(--line);display:flex;align-items:center;line-height:1.35}
+.itable .c b{color:var(--ink)}
+.itable .cause{font-family:var(--serif);font-weight:600;color:#0F1620;background:var(--spectral);justify-content:center;text-align:center}
+.itable .mono{font-family:var(--mono);font-size:12.5px;color:var(--v3)}
+.pipe{display:flex;flex-wrap:wrap;gap:10px;width:100%}
+.step{flex:1 1 0;min-width:112px;padding:12px 12px 14px;border-radius:6px;background:rgba(20,28,38,.55);border-left:3px solid var(--v3)}
+.step .sn{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--v3);margin-bottom:4px}
+.step .st{font-size:12.8px;color:#D2DAE2;line-height:1.32}
+.exhead{display:flex;align-items:center;gap:15px;margin-bottom:1.8vh;flex-wrap:wrap}
+.stars{font-family:var(--mono);font-size:clamp(14px,1.6vw,20px);letter-spacing:3px;background:var(--spectral);-webkit-background-clip:text;background-clip:text;color:transparent}
+.exlabel{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.tagsala{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;padding:4px 9px;border-radius:3px}
+.tagsala.pro{color:#0F1620;background:var(--v3)}
+.tagsala.alu{color:var(--v5);border:1px solid var(--v5)}
+.prompt{font-size:clamp(15px,1.7vw,21px);color:var(--ink);max-width:58ch;line-height:1.45;font-weight:500}
+.prompt .data{font-family:var(--mono);color:var(--v3);font-size:.92em}
+.answer{margin-top:2.4vh;padding:18px 22px;max-width:66ch;display:none}
+.answer.show{display:block;animation:fade .4s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.answer .al{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--good);margin-bottom:9px}
+.answer .ab{font-size:clamp(13px,1.42vw,16.5px);color:#DCE7E0;line-height:1.55}
+.answer .ab b{color:var(--v5)}
+.answer .ab code{font-family:var(--mono);color:var(--v3);font-size:.94em}
+.reveal{margin-top:2vh;font-family:var(--mono);font-size:11.5px;color:var(--faint)}.reveal b{color:var(--v3)}
+.counter{position:fixed;right:2vw;bottom:2.2vh;font-family:var(--mono);font-size:11.5px;color:var(--faint);z-index:30}.counter b{color:var(--v6)}
+.brand{position:fixed;left:6vw;bottom:2.2vh;font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:2px;z-index:30}
+.progress{position:fixed;left:0;bottom:0;height:2px;z-index:30;background:var(--spectral);transition:width .5s}
+.hint{position:fixed;right:2vw;top:2.2vh;font-family:var(--mono);font-size:10.5px;color:var(--faint);z-index:30}
+@media(max-width:900px){.cols,.cols.r,.cols.l,.boxes,.boxes.q4,.boxes.q2{grid-template-columns:1fr;gap:14px}.itable{grid-template-columns:1fr!important}.viz svg{max-height:44vh}}
+
+@keyframes slideEnter{from{opacity:0;transform:translateX(calc(var(--dir,1)*48px))}to{opacity:1;transform:none}}
+@keyframes slideLeave{from{opacity:1;transform:none}to{opacity:0;transform:translateX(calc(var(--dir,1)*-48px)) scale(.99)}}
+@keyframes reveal{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes growUp{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes drawln{to{stroke-dashoffset:0}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+.slide.active{animation:slideEnter .6s cubic-bezier(.22,.61,.36,1) both;z-index:2}
+.slide.leaving{display:flex!important;animation:slideLeave .42s ease both;z-index:1;pointer-events:none}
+
+.slide.active .eyebrow{animation:reveal .55s .02s both}
+.slide.active .title{animation:reveal .6s .12s both}
+.slide.active .lede{animation:reveal .6s .22s both}
+.slide.active .cap{animation:reveal .6s .5s both}
+.slide.active .eqwrap,.slide.active .eqbox,.slide.active .eqimg{animation:reveal .6s .3s both}
+.slide.active .trad{animation:reveal .6s .34s both}
+.slide.active .bridge{animation:fadein .8s .62s both}
+.slide.active .exhead{animation:reveal .55s .1s both}
+.slide.active .prompt{animation:reveal .6s .22s both}
+.slide.active .reveal{animation:reveal .6s .5s both}
+.slide.active .note{animation:reveal .65s .42s both}
+.slide.active .rules li{animation:reveal .5s both}
+.slide.active .rules li:nth-child(1){animation-delay:.3s}
+.slide.active .rules li:nth-child(2){animation-delay:.39s}
+.slide.active .rules li:nth-child(3){animation-delay:.48s}
+.slide.active .rules li:nth-child(4){animation-delay:.57s}
+.slide.active .rules li:nth-child(5){animation-delay:.66s}
+.slide.active .rules li:nth-child(6){animation-delay:.75s}
+.slide.active .boxes .box{animation:reveal .6s both}
+.slide.active .boxes .box:nth-child(1){animation-delay:.24s}
+.slide.active .boxes .box:nth-child(2){animation-delay:.36s}
+.slide.active .boxes .box:nth-child(3){animation-delay:.48s}
+.slide.active .boxes .box:nth-child(4){animation-delay:.6s}
+.slide.active .itable .h{animation:reveal .5s .2s both}
+.slide.active .itable .c{animation:fadein .7s .42s both}
+.slide.active .pipe .step{animation:reveal .5s both}
+.slide.active .pipe .step:nth-child(1){animation-delay:.22s}
+.slide.active .pipe .step:nth-child(2){animation-delay:.31s}
+.slide.active .pipe .step:nth-child(3){animation-delay:.40s}
+.slide.active .pipe .step:nth-child(4){animation-delay:.49s}
+.slide.active .pipe .step:nth-child(5){animation-delay:.58s}
+.slide.active .pipe .step:nth-child(6){animation-delay:.67s}
+.slide.active .viz{animation:reveal .65s .18s both}
+
+.slide.active .viz .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:drawln 1s .45s ease forwards}
+.slide.active .viz .draw.d2{animation-delay:.95s}
+.slide.active .viz .draw.d3{animation-delay:1.35s}
+.slide.active .viz .pop{transform-box:fill-box;transform-origin:center;animation:popIn .5s both;animation-delay:calc(.5s + var(--i,0)*0.05s)}
+.slide.active .viz .grow{transform-box:fill-box;transform-origin:bottom;animation:growUp .7s both;animation-delay:calc(.45s + var(--i,0)*0.06s)}
+.slide.active .viz .fade{animation:fadein .8s .5s both}
+.slide.active .viz .fade2{animation:fadein .8s 1.1s both}
+.slide.active .viz .fade3{animation:fadein .8s 1.6s both}
+
+@media (prefers-reduced-motion: reduce){
+ .slide.active,.slide.leaving{animation:none!important}
+ .slide.active *{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}
+}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <linearGradient id="gsp" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#9168D6"/><stop offset=".35" stop-color="#2FB89A"/><stop offset=".7" stop-color="#56C877"/><stop offset="1" stop-color="#F4ED45"/></linearGradient>
+ <linearGradient id="gh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9168D6"/><stop offset=".4" stop-color="#2FB89A"/><stop offset=".7" stop-color="#B5DC4A"/><stop offset="1" stop-color="#F4ED45"/></linearGradient>
+ <linearGradient id="gv" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#4F86C6"/><stop offset="1" stop-color="#2FB89A"/></linearGradient>
+ <linearGradient id="ghU" gradientUnits="userSpaceOnUse" x1="40" y1="0" x2="500" y2="0"><stop offset="0" stop-color="#9168D6"/><stop offset=".4" stop-color="#2FB89A"/><stop offset=".7" stop-color="#B5DC4A"/><stop offset="1" stop-color="#F4ED45"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="g1"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#B5DC4A"/></marker>
+ <marker id="arwY" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#F4ED45"/></marker>
+ <marker id="arwT" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#2FB89A"/></marker>
+</defs></svg>
+<div class="deck" id="deck">
+<section class="slide"><div class="eyebrow ">fundamentos de estatística · senai-sp</div><div class="cols r"><div><div class="title">As Quatro<br><span class="spectral-text">Perguntas</span></div><p class="lede">Uma planilha cheia de números não decide nada sozinha. Ela só responde quando você faz a pergunta certa — e neste curso são <span class="hl">quatro</span>.</p><p class="cap">aperfeiçoamento profissional · fundamentos de ia e análise de dados</p></div><div class="viz" data-viz="capaFunil"></div></div></section>
+<section class="slide"><div class="eyebrow ">por que estatística num curso de ia</div><div class="cols r"><div><div class="title sm">O modelo aprende do dado.<br>Alguém precisa olhar o dado.</div><p class="lede">Antes de qualquer algoritmo, alguém tem que saber <span class="hl">o que tem na base</span>. Essa pessoa é você. E o caminho é sempre o mesmo — quatro caixas, nesta ordem.</p><ul class="rules"><li class=""><span class="k">Caixa 1 · Organizar</span> — que tipo de dado é esse? O dado bruto vira tabela.</li><li class="b2"><span class="k">Caixa 2 · Centro</span> — qual é o valor típico? Média, mediana, moda.</li><li class="b3"><span class="k">Caixa 3 · Espalhamento</span> — quanto os valores variam? É a pergunta da qualidade.</li><li class=""><span class="k">Caixa 4 · Posição</span> — onde cada valor fica na fila? Quartis, decis, percentis.</li></ul><div class="note frame "><div class="nl">o combinado</div><div class="nb">Tudo o que fizermos na mão, faremos <b>também na planilha</b>. A conta à mão é para entender; a planilha é para trabalhar.</div></div></div><div class="viz" data-viz="quatroCaixas"></div></div></section>
+<section class="slide"><div class="eyebrow ">o combinado da aula</div><div class="flush">
+<div class="title">O Tradutor de Símbolos</div>
+<p class="lede">Símbolo não é decoração — é <span class="hl">instrução de trabalho</span>. Nenhum entra em cena sem ser lido em voz alta e traduzido em ação. São só cinco.</p>
+<div class="trad frame">
+<div class="sy">Σ</div><div class="rd">somatório <i>desça a coluna somando de cima para baixo</i></div>
+<div class="sy">x̄</div><div class="rd">x barra <i>a média dos valores que você tem</i></div>
+<div class="sy">n</div><div class="rd">ene <i>quantos valores você tem</i></div>
+<div class="sy">s</div><div class="rd">desvio padrão <i>quanto os valores fogem da média, em média</i></div>
+<div class="sy">x<sub>i</sub></div><div class="rd">x índice i <i>um valor qualquer da coluna</i></div>
+</div>
+<div class="note frame violet"><div class="nl">regra da aula</div><div class="nb">Se um símbolo aparecer e você não souber ler em voz alta, <b>me interrompa na hora</b>. Fórmula que não se lê não se usa.</div></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · o dado bruto vira tabela</div><div class="flush">
+<div class="title">Caixa 1 · <span class="spectral-text">ORGANIZAR</span></div>
+<p class="lede">A pergunta desta caixa:</p><ul class="rules"><li class=""><span class="k">Que tipo de dado eu tenho na mão?</span> Antes de calcular qualquer coisa, é preciso saber com que bicho se está lidando.</li><li class="b2">Qualitativa × quantitativa · discreta × contínua</li><li class="b3">Frequência absoluta, relativa, acumulada e relativa acumulada</li><li class="">A tabela de frequências — e como criar classes quando não há categorias prontas</li></ul><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · tipos de variável</div><div class="cols r"><div><div class="title">O crachá e a régua</div><p class="lede">O <span class="hl">crachá</span> diz quem você é: turno, setor, motivo da parada. A <span class="hl">régua</span> diz quanto: minutos, peças, milímetros. Esta é a primeira bifurcação de toda análise.</p><ul class="rules"><li class=""><span class="k">Qualitativa</span> — atribui categoria. Só admite contagem, tabela e gráfico de barras.</li><li class="b2"><span class="k">Quantitativa</span> — é contagem ou medição. Admite média, desvio padrão, quartil.</li></ul><div class="note frame warn"><div class="nl">o erro mais comum</div><div class="nb">Código de peça, número de OS e CEP são <b>números que não são quantitativos</b>. Some dois códigos de peça e veja o absurdo. O que decide não é o formato — é o significado.</div></div><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div><div class="viz" data-viz="crachaRegua"></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · tipos de variável</div><div class="cols r"><div><div class="title">O contador e o termômetro</div><p class="lede">Dentro das quantitativas há outra divisão. A discreta só pousa em número inteiro. A contínua escorrega entre eles.</p><ul class="rules"><li class=""><span class="k">Discreta</span> — peças refugadas no turno, número de paradas, chamados abertos. Você <b>conta</b>.</li><li class="b2"><span class="k">Contínua</span> — tempo de parada, diâmetro do eixo, consumo em kWh. Você <b>mede</b>.</li></ul><div class="note frame "><div class="nl">por que isso importa</div><div class="nb">A discreta você tabela direto. A contínua quase sempre precisa de <b>faixas</b> antes de virar tabela — e quem escolhe as faixas é você.</div></div><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div><div class="viz" data-viz="degrauRampa"></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · frequências</div><div class="cols r"><div><div class="title">Contar e depois repartir</div><p class="lede">A frequência absoluta responde <span class="hl">quantas vezes</span>. A relativa responde <span class="hl">qual fatia do total</span> — e é ela que permite comparar meses com número de turnos diferente.</p><ul class="rules"><li class=""><span class="k">Fi · absoluta</span> — quantas ocorrências caíram naquela categoria.</li><li class="b2"><span class="k">Fri · relativa</span> — Fi ÷ n. Em porcentagem, multiplique por 100.</li></ul><div class="note frame ok"><div class="nl">confira sempre</div><div class="nb">A soma de todas as Fi tem que dar <b>exatamente n</b>, e a soma das Fri tem que dar <b>100%</b>. Se não fechar, faltou categoria ou sobrou registro duplicado.</div></div><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div><div class="viz" data-viz="urnaFreq"></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · frequências</div><div class="cols r"><div><div class="title">O acumulado só sobe</div><p class="lede">A frequência acumulada empilha cada linha sobre as anteriores. Nunca desce, e sempre termina no total.</p><ul class="rules"><li class=""><span class="k">Fac · acumulada</span> — vá somando as Fi de cima para baixo. A última linha é n.</li><li class="b2"><span class="k">Frac · relativa acumulada</span> — a mesma coisa com as Fri. A última linha é 100%.</li></ul><div class="note frame "><div class="nl">para que serve na prática</div><div class="nb">É o acumulado que responde perguntas de <b>«até quanto»</b>: «quantas paradas duraram até 20 minutos?». Você lê a resposta direto na coluna, sem recontar nada.</div></div><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div><div class="viz" data-viz="escadaAcum"></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · a tabela completa</div><div class="cols r"><div><div class="title sm">Anatomia da tabela</div><p class="lede">Quatro colunas, sempre as mesmas, sempre nesta ordem. Exemplo: <span class="hl">motivo das 40 paradas</span> registradas na prensa no mês.</p><ul class="rules"><li class=""><span class="k">Categorias nas linhas</span> — uma linha por motivo, da mais frequente para a menos.</li><li class="b2"><span class="k">Fi, Fri, Fac, Frac nas colunas</span> — nesta ordem — cada uma nasce da anterior.</li><li class="b3"><span class="k">Total no rodapé</span> — n e 100%. É a linha de auditoria da tabela.</li></ul><div class="note frame "><div class="nl">na planilha</div><div class="nb">Fi sai de <code>=CONT.SE(intervalo; categoria)</code>. Fri é a célula da Fi dividida pelo total — <b>trave o total com $</b>, senão a fórmula se perde ao arrastar.</div></div><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div><div class="viz" data-viz="anatomiaTabela"></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · variável contínua</div><div class="cols r"><div><div class="title sm">As gavetas do tempo de parada</div><p class="lede">Variável contínua não vem com categorias prontas. Antes de contar, você precisa <span class="hl">construir as gavetas</span> — e essa escolha é sua.</p><ul class="rules"><li class=""><span class="k">1. Defina as faixas</span> — iguais e sem buraco: 0–9, 10–19, 20–29, 30–39 minutos.</li><li class="b2"><span class="k">2. Conte quantos caem em cada uma</span> — cada valor entra em uma gaveta só.</li><li class="b3"><span class="k">3. Siga com Fi, Fri, Fac e Frac</span> — a partir daqui é a mesma tabela de sempre.</li></ul><div class="note frame warn"><div class="nl">cuidado com o exagero</div><div class="nb">Faixa larga demais achata tudo e some com a informação. Faixa estreita demais vira lista de novo. Um bom começo: <b>5 a 8 faixas</b>, e ajuste olhando o resultado.</div></div><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div><div class="viz" data-viz="gavetas"></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★☆☆</span><span class="exlabel">exercício 01 · motivos de parada</span>
+<span class="tagsala pro">resolver em sala</span></div>
+<p class="prompt">A prensa parou <span class="data">40 vezes</span> no mês. Os motivos registrados foram: <span class="data">setup 14 · falta de material 10 · manutenção corretiva 8 · falha de qualidade 5 · outros 3</span>. Monte a tabela de frequências completa.</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab">A variável é <b>qualitativa</b> — categorias prontas, sem criar faixas.<br><br><b>Fi:</b> 14 · 10 · 8 · 5 · 3<br><b>Fri:</b> 35% · 25% · 20% · 12,5% · 7,5%<br><b>Fac:</b> 14 · 24 · 32 · 37 · 40<br><b>Frac:</b> 35% · 60% · 80% · 92,5% · 100%<br><br>Auditoria: <code>ΣFi = 40</code> ✓ e <code>ΣFri = 100%</code> ✓<br><br>Leitura de gestão: <b>setup e falta de material somam 60%</b> das paradas. É por aí que se começa a atacar o problema — não pelos 7,5% de «outros».</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div></section>
+<section class="slide"><div class="eyebrow k1">caixa 1 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★★☆</span><span class="exlabel">exercício 02 · tempo de parada em faixas</span>
+<span class="tagsala alu">tarefa do aluno</span></div>
+<p class="prompt">Você tem os <span class="data">tempos de 30 paradas</span>, em minutos, na aba «1 · Frequências» da planilha. Monte a tabela usando faixas de <span class="data">10 em 10 minutos</span> e responda: que porcentagem das paradas durou <span class="data">até 19 minutos</span>?</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab">A variável é <b>quantitativa contínua</b>, então o primeiro passo é criar as gavetas: 0–9, 10–19, 20–29, 30–39.<br><br>Conte quantos valores caem em cada faixa (na planilha, <code>=CONT.SES</code> com dois critérios, ou <code>=FREQÜÊNCIA</code>), e siga com Fri, Fac e Frac.<br><br>A resposta da pergunta está na <b>coluna Frac, na linha 10–19</b>. É exatamente para isso que a relativa acumulada existe: você lê «até quanto» sem recontar nada.<br><br>Confira: a última linha da Fac tem que dar <code>30</code>.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «1 · Frequências»</span></div></div></section>
+<section class="slide"><div class="eyebrow k2">caixa 2 · qual é o valor típico?</div><div class="flush">
+<div class="title">Caixa 2 · <span class="spectral-text">CENTRO</span></div>
+<p class="lede">A pergunta desta caixa:</p><ul class="rules"><li class=""><span class="k">Se eu pudesse dizer um número só, qual seria?</span> Trinta tempos de parada não cabem na cabeça de ninguém.</li><li class="b2">Média — o ponto de equilíbrio</li><li class="b3">Mediana — quem está no meio da fila</li><li class="">Moda — o valor que mais se repete</li><li class="bad">E a pergunta que separa quem entendeu: <b>quando a média mente?</b></li></ul><div class="bridge"><span>📗 Planilha · aba «2A · Centro»</span></div></div></section>
+<section class="slide"><div class="eyebrow k2">caixa 2 · média</div><div class="cols r"><div><div class="title">A média é uma gangorra</div><p class="lede">Imagine cada valor como um peso sobre uma tábua. A média é o único ponto onde a tábua <span class="hl">fica em equilíbrio</span>.</p><div class="eqbox frame"><span style="font-family:Lora;font-size:22px">x̄ = (soma de todos os valores) ÷ n</span></div><ul class="rules"><li class=""><span class="k">Some a coluna inteira</span> — esse é o Σ do tradutor. Nada de misterioso.</li><li class="b2"><span class="k">Divida pela quantidade de valores</span> — esse é o n.</li></ul><div class="note frame ok"><div class="nl">nosso exemplo da aula</div><div class="nb">Doze turnos de parada da prensa, em minutos: <b>10 · 12 · 14 · 15 · 15 · 16 · 16 · 16 · 18 · 20 · 22 · 30</b>. Soma = 204, n = 12 → <b>x̄ = 17 minutos</b>. Na planilha: <code>=MÉDIA(intervalo)</code>.</div></div><div class="bridge"><span>📗 Planilha · aba «2A · Centro»</span></div></div><div class="viz" data-viz="gangorra"></div></div></section>
+<section class="slide"><div class="eyebrow k2">caixa 2 · mediana</div><div class="cols r"><div><div class="title">A mediana é a fila do meio</div><p class="lede">Ordene os valores do menor para o maior e aponte <span class="hl">quem está no centro da fila</span>. Metade fica abaixo, metade acima.</p><ul class="rules"><li class=""><span class="k">n ímpar</span> — a mediana é o valor que está exatamente no meio.</li><li class="b2"><span class="k">n par</span> — é a média dos dois valores centrais.</li></ul><div class="note frame warn"><div class="nl">o erro que derruba todo mundo</div><div class="nb">Apontar o meio da lista <b>sem ordenar antes</b>. A mediana do conjunto 7 · 1 · 3 · 9 · 5 não é 3 — é <b>5</b>. Ordene sempre.</div></div><div class="note frame ok"><div class="nl">nos nossos 12 turnos</div><div class="nb">Ordenados, os dois do meio são 16 e 16 → <b>mediana = 16 minutos</b>. Na planilha: <code>=MED(intervalo)</code>.</div></div><div class="bridge"><span>📗 Planilha · aba «2A · Centro»</span></div></div><div class="viz" data-viz="filaMediana"></div></div></section>
+<section class="slide"><div class="eyebrow k2">caixa 2 · moda</div><div class="cols r"><div><div class="title">A moda é o mais pedido do cardápio</div><p class="lede">O valor que <span class="hl">aparece mais vezes</span>. Simples assim — e é a única das três que também funciona para variável qualitativa.</p><ul class="rules"><li class=""><span class="k">Pode não existir</span> — se nenhum valor se repete, o conjunto é amodal.</li><li class="b2"><span class="k">Pode haver mais de uma</span> — dois valores empatados em primeiro: bimodal.</li><li class="b3"><span class="k">Serve para qualitativa</span> — o motivo de parada mais frequente é uma moda.</li></ul><div class="note frame ok"><div class="nl">nos nossos 12 turnos</div><div class="nb">O 16 aparece três vezes; nenhum outro repete tanto → <b>moda = 16 minutos</b>. Na planilha: <code>=MODO.ÚNICO(intervalo)</code>.</div></div><div class="bridge"><span>📗 Planilha · aba «2A · Centro»</span></div></div><div class="viz" data-viz="cardapio"></div></div></section>
+<section class="slide"><div class="eyebrow k2">caixa 2 · escolha da medida</div><div class="cols r"><div><div class="title">Quando a média mente</div><p class="lede">Um único valor extremo é suficiente para separar a média da mediana. E a distância entre as duas é, ela própria, <span class="hl">uma informação</span>.</p><div class="note frame warn"><div class="nl">o caso</div><div class="nb">Sete chamados de manutenção, em minutos: <b>20 · 22 · 25 · 25 · 28 · 30 · 200</b>. A média é <b>50 min</b>. A mediana é <b>25 min</b>. A média dobrou por causa de um chamado só — e nenhum dos sete durou 50 minutos.</div></div><ul class="rules"><li class=""><span class="k">Média puxada para cima</span> — quando há valores muito altos: horas extras, retrabalho, refugo.</li><li class="b2"><span class="k">Mediana resiste</span> — ela só olha a posição na fila, não o tamanho do valor.</li><li class="b3"><span class="k">Reporte as duas</span> — x̄ bem diferente de Md é sinal de que existe caso extremo na base.</li></ul><div class="note frame violet"><div class="nl">regra prática de chão de fábrica</div><div class="nb">Se x̄ e Md estão longe uma da outra, <b>vá procurar o caso extremo antes de tirar conclusão</b>. Quase sempre há uma história ali — e às vezes é erro de digitação.</div></div><div class="bridge"><span>📗 Planilha · aba «2A · Centro»</span></div></div><div class="viz" data-viz="outlierPuxa"></div></div></section>
+<section class="slide"><div class="eyebrow k2">caixa 2 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★☆☆</span><span class="exlabel">exercício 03 · as três medidas</span>
+<span class="tagsala pro">resolver em sala</span></div>
+<p class="prompt">Use os <span class="data">12 tempos de parada</span> da prensa: <span class="data">10 · 12 · 14 · 15 · 15 · 16 · 16 · 16 · 18 · 20 · 22 · 30</span>. Calcule a média, a mediana e a moda — e diga o que a comparação entre elas revela.</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab"><b>Média:</b> soma = 204, n = 12 → <code>204 ÷ 12 = 17 minutos</code><br><b>Mediana:</b> já ordenados, os centrais são o 6º e o 7º (16 e 16) → <code>16 minutos</code><br><b>Moda:</b> o 16 aparece 3 vezes → <code>16 minutos</code><br><br><b>O que isso revela:</b> x̄ (17) é maior que Md (16). Existe algo puxando a média para cima — e é o turno de <b>30 minutos</b>. Sem ele, a média cai para 15,8.<br><br>Conclusão de gestão: o turno típico para 16 minutos. Aquele de 30 merece uma conversa separada, não deve ser diluído na média.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «2A · Centro»</span></div></div></section>
+<section class="slide"><div class="eyebrow k2">caixa 2 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★★☆</span><span class="exlabel">exercício 04 · a média mentiu?</span>
+<span class="tagsala alu">tarefa do aluno</span></div>
+<p class="prompt">Uma equipe registrou o tempo de 8 atendimentos, em minutos: <span class="data">15 · 18 · 20 · 20 · 22 · 24 · 25 · 136</span>. a) Calcule média e mediana. b) Recalcule as duas <span class="data">sem o valor 136</span>. c) Qual das duas medidas você levaria para a reunião — e por quê?</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab"><b>a)</b> soma = 280, n = 8 → média = <code>35 min</code>. Centrais (4º e 5º): 20 e 22 → mediana = <code>21 min</code>.<br><br><b>b)</b> Sem o 136: soma = 144, n = 7 → média = <code>≈ 20,6 min</code>. Mediana = 4º valor = <code>20 min</code>.<br><br><b>c)</b> Tirar um valor de oito derrubou a média de 35 para 20,6 — quase 15 minutos. A mediana quase não se mexeu (21 → 20). Isso é o retrato de uma média <b>refém de um caso só</b>.<br><br>Na reunião: leve a <b>mediana</b> como tempo típico, e leve o atendimento de 136 minutos <b>como um caso à parte</b>, com nome e história. As duas informações juntas — nunca a média sozinha.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «2A · Centro»</span></div></div></section>
+<section class="slide"><div class="eyebrow k3">caixa 3 · quanto os valores variam?</div><div class="flush">
+<div class="title">Caixa 3 · <span class="spectral-text">ESPALHAMENTO</span></div>
+<p class="lede">A pergunta desta caixa:</p><ul class="rules"><li class=""><span class="k">Duas linhas com a mesma média podem ser mundos diferentes.</span> Uma entrega sempre 20 minutos; a outra oscila entre 5 e 40.</li><li class="b2">Amplitude — só as duas pontas</li><li class="b3">Variância — o passo do meio</li><li class="">Desvio padrão — a medida que você reporta</li><li class="b2">Coeficiente de variação — para comparar coisas de tamanhos diferentes</li></ul><div class="bridge"><span>📗 Planilha · aba «2B · Espalhamento»</span></div></div></section>
+<section class="slide"><div class="eyebrow k3">caixa 3 · amplitude</div><div class="cols r"><div><div class="title">Amplitude: só as duas pontas</div><p class="lede">A medida mais simples de espalhamento — e, por isso mesmo, a mais frágil. Ela <span class="hl">ignora tudo o que acontece no meio</span>.</p><div class="eqbox frame"><span style="font-family:Lora;font-size:22px">amplitude = maior valor − menor valor</span></div><div class="note frame ok"><div class="nl">nos 12 turnos</div><div class="nb">30 − 10 = <b>20 minutos</b> de amplitude.</div></div><div class="note frame warn"><div class="nl">por que ela é frágil</div><div class="nb">Dois conjuntos com a mesma amplitude podem ter formatos completamente diferentes. E basta <b>um</b> valor estranho para a amplitude inteira mudar. Use como primeira olhada, nunca como conclusão.</div></div><div class="bridge"><span>📗 Planilha · aba «2B · Espalhamento»</span></div></div><div class="viz" data-viz="amplitudeViz"></div></div></section>
+<section class="slide"><div class="eyebrow k3">caixa 3 · variância</div><div class="cols r"><div><div class="title sm">Variância: o passo do meio</div><p class="lede">Queremos saber o quanto cada valor <span class="hl">foge da média</span>. O problema: se você somar as fugas com sinal, elas se cancelam e dá zero. A solução é elevar cada uma ao quadrado.</p><ul class="rules"><li class=""><span class="k">1. Calcule cada desvio</span> — valor − média. Uns positivos, outros negativos.</li><li class="b2"><span class="k">2. Eleve cada desvio ao quadrado</span> — o sinal some, a distância fica.</li><li class="b3"><span class="k">3. Some tudo e divida por n − 1</span> — aqui nasce a variância, s².</li></ul><div class="note frame ok"><div class="nl">nos 12 turnos, passo a passo</div><div class="nb">Desvios em relação a 17: −7, −5, −3, −2, −2, −1, −1, −1, +1, +3, +5, +13. Ao quadrado e somados: <b>298</b>. Dividindo por n−1 = 11 → <b>s² = 27,1 minutos ao quadrado</b>.</div></div><div class="note frame violet"><div class="nl">a pergunta certa a fazer aqui</div><div class="nb">«Minuto ao quadrado» não existe no mundo real. É por isso que a variância <b>não é o destino</b> — é a estação de passagem. O próximo slide desfaz o quadrado.</div></div><div class="bridge"><span>📗 Planilha · aba «2B · Espalhamento»</span></div></div><div class="viz" data-viz="varianciaQuadrados"></div></div></section>
+<section class="slide"><div class="eyebrow k3">caixa 3 · desvio padrão</div><div class="cols r"><div><div class="title sm">Desvio padrão: de volta ao mundo real</div><p class="lede">A raiz quadrada da variância devolve a <span class="hl">unidade original</span>. Minutos viram minutos de novo — e aí o número passa a significar alguma coisa.</p><div class="eqbox frame"><span style="font-family:Lora;font-size:22px">s = √s²</span></div><div class="note frame ok"><div class="nl">nos 12 turnos</div><div class="nb">√27,1 ≈ <b>5,2 minutos</b>. Leitura: os turnos ficam, em média, a cerca de 5 minutos de distância dos 17 minutos típicos.</div></div><ul class="rules"><li class=""><span class="k">Reporte sempre o desvio padrão</span> — nunca a variância. Ninguém entende minuto ao quadrado.</li><li class="b2"><span class="k">Na planilha</span> — <code>=DESVPAD.A(intervalo)</code> para amostra — é o caso quase sempre.</li><li class="b3"><span class="k">s pequeno = processo regular</span> — s grande = processo instável. É a pergunta da qualidade.</li></ul><div class="note frame warn"><div class="nl">atenção ao arredondar</div><div class="nb">Só arredonde <b>no fim</b>. Se você arredondar a média antes de calcular os desvios, o erro se multiplica em cada linha.</div></div><div class="bridge"><span>📗 Planilha · aba «2B · Espalhamento»</span></div></div><div class="viz" data-viz="desvioVolta"></div></div></section>
+<section class="slide"><div class="eyebrow k3">caixa 3 · coeficiente de variação</div><div class="cols r"><div><div class="title">Comparar o incomparável</div><p class="lede">Um desvio de 4 minutos é muito ou pouco? <span class="hl">Depende da média</span>. O CV transforma a dispersão em porcentagem — e aí dá para comparar linhas diferentes.</p><div class="eqbox frame"><span style="font-family:Lora;font-size:22px">CV = (s ÷ x̄) × 100</span></div><div class="note frame ok"><div class="nl">o caso</div><div class="nb">Linha A: setup médio 20 min, s = 2 → <b>CV = 10%</b>.<br>Linha B: setup médio 50 min, s = 4 → <b>CV = 8%</b>.<br>A linha B tem o desvio padrão <b>maior</b> e ainda assim é a <b>mais regular</b> das duas.</div></div><ul class="rules"><li class=""><span class="k">CV menor</span> — processo mais homogêneo, mais previsível.</li><li class="b2"><span class="k">CV maior</span> — processo mais instável em relação ao próprio tamanho.</li><li class="bad"><span class="k">Só para valores positivos</span> — com média perto de zero o CV explode e perde o sentido.</li></ul><div class="bridge"><span>📗 Planilha · aba «2B · Espalhamento»</span></div></div><div class="viz" data-viz="cvComparacao"></div></div></section>
+<section class="slide"><div class="eyebrow k3">caixa 3 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★★☆</span><span class="exlabel">exercício 05 · tempo de setup</span>
+<span class="tagsala pro">resolver em sala</span></div>
+<p class="prompt">Foram cronometradas <span class="data">8 trocas de ferramenta</span>, em minutos: <span class="data">18 · 18 · 18 · 19 · 21 · 21 · 22 · 23</span>. Calcule a média, a variância e o desvio padrão — mostrando cada passo.</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab"><b>1. Média:</b> soma = 160, n = 8 → <code>x̄ = 20 min</code><br><br><b>2. Desvios (valor − 20):</b> −2 · −2 · −2 · −1 · +1 · +1 · +2 · +3<br><br><b>3. Desvios ao quadrado:</b> 4 · 4 · 4 · 1 · 1 · 1 · 4 · 9 → soma = <code>28</code><br><br><b>4. Variância:</b> 28 ÷ (8 − 1) = <code>s² = 4 min²</code><br><br><b>5. Desvio padrão:</b> √4 = <code>s = 2 minutos</code><br><br>Leitura: o setup típico é de 20 minutos, com oscilação da ordem de 2 minutos para mais ou para menos. Confira na planilha com <code>=DESVPAD.A</code> — tem que bater exatamente.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «2B · Espalhamento»</span></div></div></section>
+<section class="slide"><div class="eyebrow k3">caixa 3 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★★☆</span><span class="exlabel">exercício 06 · qual linha é mais regular</span>
+<span class="tagsala alu">tarefa do aluno</span></div>
+<p class="prompt">Duas linhas produzem a mesma peça. <span class="data">Linha A</span>: média de 40 peças/hora, desvio padrão 6. <span class="data">Linha B</span>: média de 120 peças/hora, desvio padrão 12. a) Qual tem o maior desvio padrão? b) Qual é a mais regular? c) Explique a diferença entre as duas perguntas.</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab"><b>a)</b> A linha B, com s = 12 — o dobro da A.<br><br><b>b)</b> Calcule o CV:<br>Linha A → <code>6 ÷ 40 × 100 = 15%</code><br>Linha B → <code>12 ÷ 120 × 100 = 10%</code><br>A <b>linha B</b> é a mais regular.<br><br><b>c)</b> O desvio padrão responde «<b>quanto oscila</b>», na unidade da variável. O CV responde «<b>quanto oscila em relação ao próprio tamanho</b>». Oscilar 12 peças quando se produz 120 é proporcionalmente menos grave do que oscilar 6 quando se produz 40.<br><br>É o mesmo raciocínio de dizer que R$ 100 de diferença pesam muito num aluguel de R$ 800 e quase nada num carro de R$ 80.000.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «2B · Espalhamento»</span></div></div></section>
+<section class="slide"><div class="eyebrow k4">caixa 4 · onde cada valor fica na fila?</div><div class="flush">
+<div class="title">Caixa 4 · <span class="spectral-text">POSIÇÃO</span></div>
+<p class="lede">A pergunta desta caixa:</p><ul class="rules"><li class=""><span class="k">Média e desvio resumem o conjunto. Agora queremos localizar um valor dentro dele.</span> «Meu tempo foi bom?» só se responde comparando com a fila.</li><li class="b2">Percentil — a régua de cem marcas</li><li class="b3">Quartil — a mesma régua com três cortes</li><li class="">Decil — a mesma régua com nove cortes</li><li class="b2">E a boa notícia: <b>é uma conta só</b> para as três.</li></ul><div class="bridge"><span>📗 Planilha · aba «2C · Posição»</span></div></div></section>
+<section class="slide"><div class="eyebrow k4">caixa 4 · percentil</div><div class="cols r"><div><div class="title">A régua de cem marcas</div><p class="lede">Percentil não pergunta «quanto». Pergunta <span class="hl">quantos ficaram para trás de mim</span>. É posição na fila, não tamanho do valor.</p><ul class="rules"><li class=""><span class="k">P25</span> — 25% dos valores estão abaixo dele.</li><li class="b2"><span class="k">P50</span> — metade abaixo, metade acima — é a própria mediana.</li><li class="b3"><span class="k">P90</span> — 90% dos valores ficaram para trás. Só 10% são maiores.</li></ul><div class="note frame violet"><div class="nl">onde isso aparece no trabalho</div><div class="nb">Prazo de entrega prometido ao cliente costuma ser um <b>P90</b> ou <b>P95</b>: «em 90% dos casos entregamos em até X dias». Prometer a média seria furar o prazo em quase metade das vezes.</div></div><div class="bridge"><span>📗 Planilha · aba «2C · Posição»</span></div></div><div class="viz" data-viz="reguaPercentil"></div></div></section>
+<section class="slide"><div class="eyebrow k4">caixa 4 · a conta da posição</div><div class="flush">
+<div class="title sm">Uma conta só, e ela bate com a planilha</div>
+<p class="lede">Existem várias convenções de cálculo por aí, e elas dão resultados diferentes. Nesta disciplina usamos <span class="hl">uma só</span> — a mesma do Excel e do Google Planilhas — para que a conta na mão e a conta na planilha nunca briguem.</p>
+<div class="eqbox frame"><span style="font-family:Lora;font-size:23px">
+posição = (p ÷ 100) × (n − 1) + 1</span></div>
+<ul class="rules"><li class=""><span class="k">Ordene os valores primeiro</span> — sem ordenar, nada aqui funciona.</li><li class="b2"><span class="k">Se a posição der número inteiro</span> — o percentil é o valor que está naquela posição.</li><li class="b3"><span class="k">Se der quebrado</span> — ande a fração entre o valor da posição e o seguinte.</li></ul>
+<div class="note frame ok"><div class="nl">exemplo com os 12 turnos</div><div class="nb">P25 → posição = 0,25 × 11 + 1 = <b>3,75</b>. O 3º valor é 14 e o 4º é 15. Ande 0,75 do caminho entre eles: 14 + 0,75 × 1 = <b>14,75 minutos</b>.<br>Na planilha: <code>=PERCENTIL.INC(intervalo; 0,25)</code> → 14,75. Bate.</div></div>
+<div class="bridge"><span>📗 Planilha · aba «2C · Posição»</span></div></div></section>
+<section class="slide"><div class="eyebrow k4">caixa 4 · quartis</div><div class="cols r"><div><div class="title">Quartis: a fila em quatro pedaços</div><p class="lede">A mesma régua, agora com apenas três cortes. Cada pedaço contém exatamente <span class="hl">25% das observações</span>.</p><ul class="rules"><li class=""><span class="k">Q1 = P25</span> — o quarto mais rápido do processo está abaixo dele.</li><li class="b2"><span class="k">Q2 = P50</span> — é a mediana. Mesmo número, nome diferente.</li><li class="b3"><span class="k">Q3 = P75</span> — acima dele está o quarto mais lento — onde mora o problema.</li></ul><div class="note frame ok"><div class="nl">o boxplot em uma frase</div><div class="nb">A caixa vai de Q1 a Q3 (o miolo, onde estão 50% dos casos), o traço de dentro é a mediana, e os fios vão até as pontas. É o gráfico que a Caixa 3 pedia — e você vai desenhá-lo em Python.</div></div><div class="note frame "><div class="nl">nos 12 turnos</div><div class="nb">Q1 = 14,75 · Q2 = 16 · Q3 = 18,5 minutos. Metade dos turnos fica entre <b>14,75 e 18,5</b> minutos.</div></div><div class="bridge"><span>📗 Planilha · aba «2C · Posição»</span></div></div><div class="viz" data-viz="boxplotQuartis"></div></div></section>
+<section class="slide"><div class="eyebrow k4">caixa 4 · decis e a família</div><div class="cols r"><div><div class="title">Decis: a mesma régua, dez fatias</div><p class="lede">Nove cortes, dez fatias de 10% cada. Nada de novo — só <span class="hl">outra granularidade da mesma régua</span>.</p><ul class="rules"><li class=""><span class="k">D1 = P10 · D5 = P50 · D8 = P80</span> — a conversão é sempre multiplicar por 10.</li><li class="b2"><span class="k">Percentil, quartil e decil</span> — são a mesma coisa vista com três lentes diferentes.</li><li class="b3"><span class="k">Quem entendeu a conta de posição</span> — ganhou as três de graça.</li></ul><div class="note frame violet"><div class="nl">onde cada um aparece</div><div class="nb">Quartil é o padrão da estatística descritiva e do boxplot. Decil aparece em faixas de desempenho e de renda. Percentil aparece em prazo, crescimento infantil e nota de prova.</div></div><div class="bridge"><span>📗 Planilha · aba «2C · Posição»</span></div></div><div class="viz" data-viz="familiaRegua"></div></div></section>
+<section class="slide"><div class="eyebrow k4">caixa 4 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★★☆</span><span class="exlabel">exercício 07 · quartis do refugo</span>
+<span class="tagsala pro">resolver em sala</span></div>
+<p class="prompt">Peças refugadas por dia, em <span class="data">9 dias</span>: <span class="data">11 · 3 · 15 · 6 · 20 · 8 · 12 · 5 · 9</span>. Calcule Q1, a mediana e Q3.</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab"><b>1. Ordene:</b> 3 · 5 · 6 · 8 · 9 · 11 · 12 · 15 · 20 &nbsp;(n = 9)<br><br><b>Q1 (p = 25):</b> posição = 0,25 × 8 + 1 = <code>3</code> → inteiro! → 3º valor = <code>6 peças</code><br><b>Q2 (p = 50):</b> posição = 0,50 × 8 + 1 = <code>5</code> → 5º valor = <code>9 peças</code><br><b>Q3 (p = 75):</b> posição = 0,75 × 8 + 1 = <code>7</code> → 7º valor = <code>12 peças</code><br><br>Com n = 9 todas as posições caem em número inteiro — por isso este exercício vem primeiro.<br><br><b>Leitura:</b> em metade dos dias o refugo fica entre 6 e 12 peças. Um dia com 20 peças está acima do Q3 — é candidato natural a investigação, não a média.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «2C · Posição»</span></div></div></section>
+<section class="slide"><div class="eyebrow k4">caixa 4 · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★★☆</span><span class="exlabel">exercício 08 · percentil e decil</span>
+<span class="tagsala alu">tarefa do aluno</span></div>
+<p class="prompt">Consumo de energia em <span class="data">11 dias</span>, em kWh: <span class="data">50 · 45 · 58 · 42 · 51 · 66 · 47 · 55 · 48 · 60 · 53</span>. Calcule: a) o P90 &nbsp; b) o terceiro decil (D3) &nbsp; c) Q1.</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab"><b>Ordene:</b> 42 · 45 · 47 · 48 · 50 · 51 · 53 · 55 · 58 · 60 · 66 &nbsp;(n = 11)<br><br><b>a) P90:</b> posição = 0,90 × 10 + 1 = <code>10</code> → 10º valor = <code>60 kWh</code><br><b>b) D3 = P30:</b> posição = 0,30 × 10 + 1 = <code>4</code> → 4º valor = <code>48 kWh</code><br><b>c) Q1 = P25:</b> posição = 0,25 × 10 + 1 = <code>3,5</code> → entre o 3º (47) e o 4º (48): 47 + 0,5 × 1 = <code>47,5 kWh</code><br><br>Repare que com n = 11 os multiplicadores caem em cima de (n−1) = 10, o que deixa quase tudo inteiro. Só o Q1 exigiu interpolação.<br><br>Confira tudo com <code>=PERCENTIL.INC</code> na planilha.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «2C · Posição»</span></div></div></section>
+<section class="slide"><div class="eyebrow ">fundamentos de probabilidade</div><div class="flush">
+<div class="title">E qual é a <span class="spectral-text">chance</span>?</div>
+<p class="lede">Até aqui descrevemos o que já aconteceu. Probabilidade é a linguagem do que <span class="hl">ainda pode acontecer</span> — e é ela que sustenta tudo que a IA faz quando diz «85% de chance de falha».</p>
+<div class="boxes q4">
+<div class="box k1"><div class="n">a régua</div><div class="t">0 a 1</div>
+<div class="d">0 = impossível. 1 = certo. Tudo mais fica no meio. Em porcentagem, multiplique por 100.</div></div>
+<div class="box k2"><div class="n">e</div><div class="t">multiplica</div>
+<div class="d">Exigir duas coisas ao mesmo tempo sempre <b>encolhe</b> a chance.</div></div>
+<div class="box k3"><div class="n">ou</div><div class="t">soma</div>
+<div class="d">Aceitar qualquer uma das duas <b>aumenta</b> a chance — descontando o que se repete.</div></div>
+<div class="box k4"><div class="n">dado que</div><div class="t">encolhe o mundo</div>
+<div class="d">Informação nova reduz o universo de possibilidades e muda a conta.</div></div>
+</div>
+<div class="note frame violet"><div class="nl">de onde saem os números</div><div class="nb">Numa base de dados, a probabilidade de um evento é a <b>frequência relativa</b> dele — exatamente a coluna Fri que você montou na Caixa 1. Não é assunto novo: é a mesma tabela, lida para a frente.</div></div>
+<div class="bridge"><span>📗 Planilha · aba «3 · Probabilidade»</span></div></div></section>
+<section class="slide"><div class="eyebrow ">probabilidade · regra do «e»</div><div class="cols r"><div><div class="title">Dois portões em série</div><p class="lede">Para que <span class="hl">A e B</span> aconteçam, é preciso passar pelos dois. As chances se multiplicam — e multiplicar frações sempre encolhe o resultado.</p><div class="eqbox frame"><span style="font-family:Lora;font-size:21px">P(A e B) = P(A) × P(B)</span><br><span style="font-size:12px;color:#93A4B7;font-family:JetBrains Mono">válido quando um evento não afeta o outro</span></div><div class="note frame ok"><div class="nl">no chão de fábrica</div><div class="nb">Uma peça precisa passar na medida <b>e</b> no acabamento. Se 90% passam na medida e 95% no acabamento, o rendimento final é <code>0,90 × 0,95 = 0,855</code> → <b>85,5%</b>. Sempre menor que qualquer uma das duas.</div></div><div class="note frame warn"><div class="nl">atenção</div><div class="nb">Se as retiradas forem <b>sem reposição</b>, a segunda probabilidade muda: o lote já tem uma peça a menos. Retirar 2 defeituosas de um lote com 8 defeitos em 100: <code>8/100 × 7/99</code>.</div></div><div class="bridge"><span>📗 Planilha · aba «3 · Probabilidade»</span></div></div><div class="viz" data-viz="portoesSerie"></div></div></section>
+<section class="slide"><div class="eyebrow ">probabilidade · regra do «ou»</div><div class="cols r"><div><div class="title">Dois círculos sobrepostos</div><p class="lede">Para <span class="hl">A ou B</span>, some as duas chances — mas desconte o miolo, que você acabou de contar duas vezes.</p><div class="eqbox frame"><span style="font-family:Lora;font-size:21px">P(A ou B) = P(A) + P(B) − P(A e B)</span></div><div class="note frame ok"><div class="nl">no chão de fábrica</div><div class="nb">Em 100 peças: 12 estão fora de medida, 8 têm risco na superfície, e 3 têm os dois defeitos. A chance de uma peça ter <b>algum</b> defeito é <code>(12 + 8 − 3) ÷ 100 = 17%</code>, e não 20%.</div></div><div class="note frame violet"><div class="nl">quando o desconto some</div><div class="nb">Se os dois eventos <b>não podem ocorrer juntos</b> (a peça é aprovada ou reprovada, nunca as duas), o miolo é zero e a subtração desaparece.</div></div><div class="bridge"><span>📗 Planilha · aba «3 · Probabilidade»</span></div></div><div class="viz" data-viz="vennAdicao"></div></div></section>
+<section class="slide"><div class="eyebrow ">probabilidade · condicional</div><div class="cols r"><div><div class="title">Quando a porta já abriu</div><p class="lede">Saber que B ocorreu <span class="hl">encolhe o universo</span> de possibilidades. A probabilidade condicional recalcula tudo dentro do mundo menor.</p><div class="eqbox frame"><span style="font-family:Lora;font-size:21px">P(A | B) = P(A e B) ÷ P(B)</span><br><span style="font-size:12px;color:#93A4B7;font-family:JetBrains Mono">lê-se: probabilidade de A, dado que B aconteceu</span></div><div class="note frame ok"><div class="nl">no mesmo lote de 100 peças</div><div class="nb">Você já sabe que a peça está <b>fora de medida</b> (são 12). Qual a chance de ela também ter risco? Só 3 das 12 têm os dois defeitos → <code>3 ÷ 12 = 25%</code>. O denominador virou 12, não 100.</div></div><div class="note frame violet"><div class="nl">por que isso importa em ia</div><div class="nb">Todo modelo de classificação responde uma pergunta condicional: «<b>dado</b> estes sensores, qual a chance de falha?». É esta conta, em escala.</div></div><div class="bridge"><span>📗 Planilha · aba «3 · Probabilidade»</span></div></div><div class="viz" data-viz="condicionalUniverso"></div></div></section>
+<section class="slide"><div class="eyebrow ">probabilidade · exercício</div><div class="flush"><div class="exhead">
+<span class="stars">★★☆</span><span class="exlabel">exercício 09 · inspeção de lote</span>
+<span class="tagsala pro">resolver em sala</span></div>
+<p class="prompt">Um lote tem <span class="data">100 peças, das quais 8 são defeituosas</span>. a) Qual a chance de uma peça sorteada ser defeituosa? b) Retirando <span class="data">duas peças, sem reposição</span>, qual a chance de as duas serem defeituosas? c) Em outro lote de 100, há 12 peças fora de medida, 8 com risco e 3 com os dois defeitos — qual a chance de uma peça ter algum defeito?</p>
+<div class="answer frame"><div class="al">resolução</div><div class="ab"><b>a)</b> <code>8 ÷ 100 = 0,08</code> → <b>8%</b><br><br><b>b)</b> Regra do «e», sem reposição — a segunda conta muda de universo:<br><code>8/100 × 7/99 = 56/9900 ≈ 0,0057</code> → <b>0,57%</b><br>Repare: exigir as duas coisas derrubou de 8% para menos de 1%.<br><br><b>c)</b> Regra do «ou», descontando a sobreposição:<br><code>(12 + 8 − 3) ÷ 100 = 0,17</code> → <b>17%</b><br>Somar 12 + 8 daria 20% e estaria errado: as 3 peças com os dois defeitos teriam sido contadas duas vezes.<br><br><b>Bônus para discutir:</b> se a peça já está fora de medida, a chance de ela também ter risco é <code>3 ÷ 12 = 25%</code> — muito acima dos 8% gerais. Os dois defeitos andam juntos, e isso é uma pista de processo.</div></div>
+<p class="reveal">pressione <b>R</b> para revelar a resolução</p><div class="bridge"><span>📗 Planilha · aba «3 · Probabilidade»</span></div></div></section>
+<section class="slide"><div class="eyebrow ">síntese · as três famílias juntas</div><div class="cols r"><div><div class="title">A ficha da variável</div><p class="lede">Nenhuma medida sozinha descreve nada. Um analista coletou <span class="hl">100 tempos de parada</span>: é o conjunto das três famílias que faz o retrato.</p><ul class="rules"><li class=""><span class="k">Centro</span> — x̄ = 17,4 min · Md = 16 min · Mo = 16 min</li><li class="b2"><span class="k">Espalhamento</span> — s = 5,2 min · CV = 30% · amplitude = 26 min</li><li class="b3"><span class="k">Posição</span> — Q1 = 14 min · Q3 = 20 min — metade dos casos mora nessa faixa</li></ul><div class="note frame ok"><div class="nl">como se lê isso em uma frase</div><div class="nb">«A parada típica dura cerca de 16 minutos, com oscilação de uns 5 minutos para mais ou para menos. Metade dos casos fica entre 14 e 20 minutos, e existem alguns casos longos puxando a média para cima.»<br><br><b>Essa frase é o produto do seu trabalho.</b> Não a tabela — a frase.</div></div><div class="bridge"><span>📗 Planilha · aba «4 · Ficha»</span></div></div><div class="viz" data-viz="fichaIdentidade"></div></div></section>
+<section class="slide"><div class="eyebrow ">síntese · o roteiro completo</div><div class="cols r"><div><div class="title sm">Quatro paradas, sempre nesta ordem</div><p class="lede">Você não aprendeu quatro assuntos. Aprendeu <span class="hl">um roteiro</span> — e ele funciona em qualquer base de dados que aparecer na sua frente.</p><ul class="rules"><li class=""><span class="k">1 · Que dado é esse?</span> — classifique cada coluna e monte a tabela de frequências.</li><li class="b2"><span class="k">2 · Qual é o valor típico?</span> — média, mediana e moda — e compare as três.</li><li class="b3"><span class="k">3 · Quanto varia?</span> — desvio padrão, e CV se for comparar coisas de tamanhos diferentes.</li><li class=""><span class="k">4 · Onde cada valor está?</span> — Q1, mediana e Q3 — e olhe quem passou do Q3.</li></ul><div class="note frame violet"><div class="nl">a prova real</div><div class="nb">Pegue uma base nova. Se você conseguir dizer <b>em qual das quatro paradas está</b> a cada momento, você não se perde — mesmo sem lembrar a fórmula de cor. A fórmula está na planilha; o roteiro tem que estar na cabeça.</div></div></div><div class="viz" data-viz="sinteseFluxo"></div></div></section>
+<section class="slide"><div class="eyebrow ">a próxima etapa</div><div class="flush">
+<div class="title sm">Da planilha para o Python</div>
+<p class="lede">Tudo o que você calculou aqui na mão e na planilha tem <span class="hl">uma linha equivalente em Python</span>. Nada do que vem a seguir é assunto novo — é o mesmo roteiro, em outra ferramenta.</p>
+<div class="itable" style="grid-template-columns:1.1fr 1fr 1fr">
+<div class="h">o que você quer</div><div class="h">na planilha</div><div class="h">em python</div>
+<div class="c">Média</div><div class="c mono">=MÉDIA(A:A)</div><div class="c mono">df["col"].mean()</div>
+<div class="c">Mediana</div><div class="c mono">=MED(A:A)</div><div class="c mono">df["col"].median()</div>
+<div class="c">Desvio padrão</div><div class="c mono">=DESVPAD.A(A:A)</div><div class="c mono">df["col"].std()</div>
+<div class="c">Quartis</div><div class="c mono">=QUARTIL.INC(A:A;1)</div><div class="c mono">df["col"].quantile(.25)</div>
+<div class="c">Tudo de uma vez</div><div class="c mono">—</div><div class="c mono">df.describe()</div>
+</div>
+<div class="note frame ok"><div class="nl">o pulo do gato</div><div class="nb">O <code>df.describe()</code> do pandas devolve, numa linha só, <b>exatamente</b> as medidas destas quatro caixas: n, média, desvio padrão, mínimo, Q1, mediana, Q3 e máximo. Quando você o vir na próxima unidade, vai reconhecer cada número — porque calculou todos eles na mão.</div></div>
+<div class="bridge"><span>🐍 próxima capacidade · análise de dados com Python</span></div></div></section>
+<section class="slide"><div class="eyebrow ">encerramento</div><div class="flush">
+<div class="title">O que levamos daqui</div>
+<p class="lede">Estatística descritiva não é um conjunto de fórmulas para decorar. É um jeito organizado de <span class="hl">fazer perguntas a uma planilha</span>.</p>
+<div class="boxes">
+<div class="box k1"><div class="n">sobre notação</div><div class="t">símbolo é instrução</div>
+<div class="d">Σ manda somar. √ manda voltar à unidade original. Se você lê o símbolo em voz alta,
+já sabe o que fazer com ele.</div></div>
+<div class="box k2"><div class="n">sobre média</div><div class="t">nunca sozinha</div>
+<div class="d">Média sem desvio padrão esconde metade da história. Média sem mediana esconde
+os casos extremos. Reporte o conjunto.</div></div>
+<div class="box k3"><div class="n">sobre o método</div><div class="t">o roteiro, não a conta</div>
+<div class="d">A planilha faz a conta. O que ela não faz é decidir qual pergunta vale a pena —
+e é para isso que você está aqui.</div></div>
+</div>
+<div class="note frame violet"><div class="nl">a única coisa que eu peço que vocês levem</div><div class="nb">Antes de apresentar qualquer número a alguém, faça a si mesmo a pergunta da Caixa 2: <b>este número é típico, ou está sendo puxado por um caso extremo?</b> Essa pergunta sozinha já evita a maior parte dos erros de análise que se veem por aí.</div></div>
+<div class="bridge"><span>senai-sp · fundamentos de ia e análise de dados</span>
+<span>estatística aplicada · 8h</span></div></div></section>
+</div>
+<div class="brand">SENAI-SP · ESTATÍSTICA APLICADA</div>
+<div class="counter"><b id="cur">01</b> / <span id="tot">00</span></div>
+<div class="hint">← → navegar · R resolução</div>
+<div class="progress" id="prog"></div>
+<script>
+// ============ HELPERS ============
+const SP=['#9168D6','#4F86C6','#2FB89A','#56C877','#B5DC4A','#F4ED45'];
+const K1='#4F86C6',K2='#2FB89A',K3='#B5DC4A',K4='#9168D6';
+const AX='rgba(143,164,183,.30)', GA='#93A4B7', INK='#E8EEF4', DIM='#5E7186';
+function hx(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function lp(a,b,t){return a+(b-a)*t}
+function spectral(t){t=Math.max(0,Math.min(1,t));const n=SP.length-1;const i=Math.min(n-1,Math.floor(t*n));const f=t*n-i;const a=hx(SP[i]),b=hx(SP[i+1]);return `rgb(${Math.round(lp(a[0],b[0],f))},${Math.round(lp(a[1],b[1],f))},${Math.round(lp(a[2],b[2],f))})`}
+function S(W,H){return `<svg viewBox="0 0 ${W} ${H}">`}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function txt(x,y,t,o){o=o||{};t=esc(t);return `<text x="${x}" y="${y}" fill="${o.f||GA}" font-size="${o.s||12}" font-family="${o.ff||'JetBrains Mono'}" text-anchor="${o.a||'middle'}"${o.w?` font-weight="${o.w}"`:''}${o.cl?` class="${o.cl}"`:''}${o.st?` font-style="${o.st}"`:''}${o.tr?` transform="${o.tr}"`:''}>${t}</text>`}
+function axes(pad,W,H,bot){bot=bot===undefined?pad:bot;return `<line x1="${pad}" y1="${H-bot}" x2="${W-pad*0.4}" y2="${H-bot}" stroke="${AX}" stroke-width="1.2"/><line x1="${pad}" y1="${pad*0.5}" x2="${pad}" y2="${H-bot}" stroke="${AX}" stroke-width="1.2"/>`}
+function ndens(t){return Math.exp(-t*t/2)}
+// curva generica desenhada progressivamente
+function curve(fn,lo,hi,X,Y,col,sw,cls){let p=[];for(let t=lo;t<=hi+1e-9;t+=(hi-lo)/220)p.push(X(t).toFixed(1)+' '+Y(fn(t)).toFixed(1));
+ return `<path class="${cls||'draw'}" pathLength="1" d="M ${p.join(' L ')}" fill="none" stroke="${col}" stroke-width="${sw||3}" filter="url(#g1)"/>`}
+function areaUnder(fn,lo,hi,X,Y,base,col,op,cls){let d=`M ${X(lo).toFixed(1)} ${base}`;for(let t=lo;t<=hi+1e-9;t+=(hi-lo)/120)d+=` L ${X(t).toFixed(1)} ${Y(fn(t)).toFixed(1)}`;d+=` L ${X(hi).toFixed(1)} ${base} Z`;
+ return `<path class="${cls||'fade2'}" d="${d}" fill="${col}" opacity="${op||.25}"/>`}
+function vbar(x,ybase,h,w,col,i,lab,val){let s=`<rect class="grow" style="--i:${i}" x="${(x-w/2).toFixed(1)}" y="${(ybase-h).toFixed(1)}" width="${w}" height="${Math.max(h,0.5).toFixed(1)}" rx="2" fill="${col}" opacity=".9"/>`;
+ if(lab!==undefined)s+=txt(x,ybase+16,lab,{s:11});
+ if(val!==undefined)s+=txt(x,ybase-h-7,val,{s:11,f:col,cl:'fade2'});
+ return s}
+
+// ============ ABERTURA ============
+function capaFunil(){const W=520,H=430;let s=S(W,H);
+ // nuvem de pontos crus caindo num funil e saindo em 4 respostas
+ const seed=[[70,40],[130,26],[200,44],[268,22],[330,48],[392,30],[448,52],[100,78],[176,66],[250,84],[320,64],[398,80],[60,110],[140,120],[224,104],[300,122],[380,110],[452,124]];
+ seed.forEach((p,i)=>{s+=`<circle class="pop" style="--i:${i*0.55}" cx="${p[0]}" cy="${p[1]}" r="4" fill="${spectral(i/seed.length)}" opacity=".85"/>`});
+ s+=`<path class="draw" pathLength="1" d="M 40 150 L 240 262 L 240 300" fill="none" stroke="url(#gsp)" stroke-width="2.6"/>`;
+ s+=`<path class="draw d2" pathLength="1" d="M 480 150 L 280 262 L 280 300" fill="none" stroke="url(#gsp)" stroke-width="2.6"/>`;
+ s+=`<line class="draw d2" pathLength="1" x1="240" y1="300" x2="280" y2="300" stroke="#2FB89A" stroke-width="2.6"/>`;
+ const q=['1','2','3','4'],cols=[K1,K2,K3,K4];
+ q.forEach((n,i)=>{const x=100+i*107,y=382;
+  s+=`<line class="draw d3" pathLength="1" x1="260" y1="304" x2="${x}" y2="${y-26}" stroke="${cols[i]}" stroke-width="1.6" opacity=".55"/>`;
+  s+=`<circle class="pop" style="--i:${8+i*1.6}" cx="${x}" cy="${y}" r="25" fill="none" stroke="${cols[i]}" stroke-width="2.6" filter="url(#g1)"/>`;
+  s+=txt(x,y+7,n,{f:cols[i],s:21,ff:'Lora',w:700});});
+ s+=txt(260,178,'dado bruto não fala',{s:12,f:DIM,cl:'fade2'});
+ s+=txt(260,424,'quatro perguntas · uma planilha',{s:12,f:GA,cl:'fade3'});
+ return s+'</svg>'}
+function quatroCaixas(){const W=560,H=380;let s=S(W,H);
+ const its=[['1','ORGANIZAR',K1],['2','CENTRO',K2],['3','ESPALHAMENTO',K3],['4','POSIÇÃO',K4]];
+ its.forEach((it,i)=>{const y=58+i*82;
+  s+=`<rect class="grow" style="--i:${i*1.4}" x="70" y="${y-26}" width="420" height="52" rx="5" fill="rgba(20,28,38,.5)" stroke="${it[2]}" stroke-width="1.6"/>`;
+  s+=`<rect class="fade2" x="70" y="${y-26}" width="6" height="52" fill="${it[2]}"/>`;
+  s+=txt(108,y+6,it[0],{f:it[2],s:22,ff:'Lora',w:700});
+  s+=txt(140,y+5,it[1],{f:INK,s:15,a:'start',ff:'JetBrains Mono'});
+  if(i<3)s+=`<line class="draw ${i?'d2':''}" pathLength="1" x1="280" y1="${y+26}" x2="280" y2="${y+56}" stroke="${GA}" stroke-width="1.4" marker-end="url(#arwT)" opacity=".6"/>`;});
+ return s+'</svg>'}
+
+// ============ CAIXA 1 · ORGANIZAR ============
+function crachaRegua(){const W=520,H=350;let s=S(W,H);
+ // cracha
+ s+=`<rect class="grow" style="--i:0" x="46" y="70" width="170" height="200" rx="8" fill="rgba(20,28,38,.6)" stroke="${K4}" stroke-width="2"/>`;
+ s+=`<circle class="pop" style="--i:2" cx="131" cy="128" r="26" fill="none" stroke="${K4}" stroke-width="2"/>`;
+ ['Turno: B','Setor: usinagem','Motivo: setup'].forEach((t,i)=>{s+=`<rect class="fade2" x="70" y="${172+i*26}" width="122" height="15" rx="3" fill="${K4}" opacity="${.5-i*.1}"/>`;s+=txt(131,184+i*26,t,{s:10,f:'#0F1620'})});
+ s+=txt(131,296,'QUALITATIVA',{f:K4,s:13,w:600});
+ s+=txt(131,316,'diz QUEM / QUAL',{f:GA,s:11});
+ s+=txt(131,54,'o crachá',{f:GA,s:12,ff:'Lora',st:'italic'});
+ // regua
+ s+=`<rect class="grow" style="--i:3" x="300" y="118" width="176" height="52" rx="5" fill="rgba(20,28,38,.6)" stroke="${K2}" stroke-width="2"/>`;
+ for(let i=0;i<=8;i++){const x=310+i*19.5,long=i%2===0;
+  s+=`<line class="fade2" x1="${x}" y1="170" x2="${x}" y2="${long?142:152}" stroke="${K2}" stroke-width="1.4"/>`;
+  if(long)s+=txt(x,136,String(i*5),{s:9,f:GA})}
+ s+=txt(388,214,'QUANTITATIVA',{f:K2,s:13,w:600});
+ s+=txt(388,234,'diz QUANTO',{f:GA,s:11});
+ s+=txt(388,90,'a régua',{f:GA,s:12,ff:'Lora',st:'italic'});
+ s+=`<rect class="fade3" x="286" y="262" width="204" height="40" rx="5" fill="rgba(244,237,69,.07)" stroke="${SP[5]}" stroke-width="1.4"/>`;
+ s+=txt(388,287,'média de código de peça = sem sentido',{s:10.5,f:SP[5]});
+ return s+'</svg>'}
+function degrauRampa(){const W=520,H=330;let s=S(W,H);
+ const bx=54,by=210;
+ // degraus
+ for(let i=0;i<5;i++){const w=34,h=26;
+  s+=`<rect class="grow" style="--i:${i}" x="${bx+i*w}" y="${by-(i+1)*h}" width="${w}" height="${(i+1)*h}" fill="${K1}" opacity="${.35+i*.11}"/>`;
+  s+=txt(bx+i*w+w/2,by+16,String(i),{s:11,f:GA})}
+ s+=txt(bx+85,by+42,'DISCRETA',{f:K1,s:13,w:600});
+ s+=txt(bx+85,by+62,'só pousa em inteiros',{f:GA,s:11});
+ s+=txt(bx+85,44,'o contador',{f:GA,s:12,ff:'Lora',st:'italic'});
+ // rampa
+ const rx=300;
+ s+=`<path class="draw" pathLength="1" d="M ${rx} ${by} Q ${rx+80} ${by-10} ${rx+170} ${by-125}" fill="none" stroke="${K2}" stroke-width="3.4" filter="url(#g1)"/>`;
+ s+=`<line class="fade2" x1="${rx}" y1="${by}" x2="${rx+176}" y2="${by}" stroke="${AX}"/>`;
+ [0.3,0.55,0.8].forEach((t,i)=>{const x=rx+t*170,y=by-Math.pow(t,1.8)*128;
+  s+=`<circle class="pop" style="--i:${6+i*1.5}" cx="${x}" cy="${y}" r="5" fill="${spectral(.35+t*.5)}" filter="url(#g1)"/>`;
+  s+=txt(x,y-13,(20+t*18).toFixed(1)+'°',{s:10,f:GA,cl:'fade3'})});
+ s+=txt(rx+88,by+42,'CONTÍNUA',{f:K2,s:13,w:600});
+ s+=txt(rx+88,by+62,'escorrega entre os números',{f:GA,s:11});
+ s+=txt(rx+88,44,'o termômetro',{f:GA,s:12,ff:'Lora',st:'italic'});
+ return s+'</svg>'}
+function urnaFreq(){const W=520,H=360;let s=S(W,H);
+ const cats=[['A',12,K1],['B',7,K2],['C',18,K3],['D',3,K4]],tot=40;
+ const base=250,bw=52;
+ cats.forEach((c,i)=>{const x=98+i*92,h=c[1]/20*168;
+  s+=vbar(x,base,h,bw,c[2],i,c[0],c[1]);
+  const pc=(c[1]/tot*100).toFixed(1)+'%';
+  s+=`<rect class="fade3" x="${x-bw/2}" y="${base+26}" width="${bw}" height="23" rx="3" fill="rgba(15,22,32,.85)" stroke="${c[2]}" stroke-width="1.2"/>`;
+  s+=txt(x,base+42,pc,{s:11.5,f:INK,cl:'fade3'})});
+ s+=`<line x1="60" y1="${base}" x2="470" y2="${base}" stroke="${AX}" stroke-width="1.2"/>`;
+ s+=txt(260,52,'quantos votos caíram em cada urna',{f:INK,s:13,ff:'Lora',st:'italic'});
+ s+=txt(46,base-8,'Fi',{f:GA,s:11});
+ s+=txt(46,base+41,'Fri',{f:GA,s:11});
+ s+=txt(266,336,'n = 40 observações · relativa sempre soma 100%',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function escadaAcum(){const W=520,H=358;let s=S(W,H);
+ const v=[12,7,18,3],lab=['A','B','C','D'];const tot=40,base=268,x0=80,bw=88,SC=152;
+ let ac=0;
+ v.forEach((n,i)=>{const prev=ac;ac+=n;
+  const hp=prev/tot*SC,ha=ac/tot*SC;
+  s+=`<rect class="fade2" x="${x0+i*bw}" y="${base-hp}" width="${bw-8}" height="${hp}" fill="${GA}" opacity=".14"/>`;
+  s+=`<rect class="grow" style="--i:${i*1.6}" x="${x0+i*bw}" y="${base-ha}" width="${bw-8}" height="${ha-hp}" fill="${spectral(i/3)}" opacity=".92"/>`;
+  s+=txt(x0+i*bw+(bw-8)/2,base+17,lab[i],{s:11.5});
+  s+=txt(x0+i*bw+(bw-8)/2,base-ha+18,String(ac),{s:12.5,f:'#0F1620',w:700,cl:'fade3'});
+  s+=txt(x0+i*bw+(bw-8)/2,base+35,(ac/tot*100).toFixed(0)+'%',{s:10.5,f:DIM,cl:'fade3'})});
+ s+=`<line x1="${x0-14}" y1="${base}" x2="${x0+4*bw}" y2="${base}" stroke="${AX}" stroke-width="1.2"/>`;
+ s+=`<line class="draw d3" pathLength="1" x1="${x0-14}" y1="${base-SC}" x2="${x0+4*bw}" y2="${base-SC}" stroke="${SP[5]}" stroke-width="1.4" stroke-dasharray="4 4"/>`;
+ s+=txt(x0+4*bw+6,base-SC+4,'100%',{s:11,f:SP[5],a:'start',cl:'fade3'});
+ s+=txt(266,54,'o termômetro que só sobe',{f:INK,s:13,ff:'Lora',st:'italic'});
+ s+=txt(266,78,'o cinza é o que já havia sido contado',{f:GA,s:11});
+ s+=txt(266,338,'Fac nunca desce — e sempre fecha no total',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function anatomiaTabela(){const W=560,H=340;let s=S(W,H);
+ const cols=['Categoria','Fi','Fri','Fac','Frac'],cw=[186,68,82,68,82];
+ const rows=[['Setup','14','35,0%','14','35,0%'],['Falta de material','10','25,0%','24','60,0%'],['Manutenção corretiva','8','20,0%','32','80,0%'],['Falha de qualidade','5','12,5%','37','92,5%'],['Outros','3','7,5%','40','100,0%'],['Total','40','100%','—','—']];
+ let x=30;const y0=70,rh=34;
+ cols.forEach((c,i)=>{s+=`<rect class="fade" x="${x}" y="${y0}" width="${cw[i]}" height="34" fill="rgba(20,28,38,.8)" stroke="${AX}"/>`;
+  s+=txt(x+cw[i]/2,y0+22,c,{s:11.5,f:i===0?INK:spectral(i/4)});x+=cw[i]});
+ rows.forEach((r,ri)=>{x=30;const last=ri===rows.length-1;
+  r.forEach((c,i)=>{s+=`<rect class="fade2" x="${x}" y="${y0+34+ri*rh}" width="${cw[i]}" height="${rh}" fill="${last?'rgba(47,184,154,.10)':'rgba(20,28,38,.35)'}" stroke="${AX}"/>`;
+   s+=txt(x+cw[i]/2,y0+34+ri*rh+26,c,{s:11.5,f:last?SP[2]:(i===0?INK:'#D2DAE2'),ff:i===0?'Inter':'JetBrains Mono'});x+=cw[i]})});
+ s+=txt(30,52,'40 paradas da prensa no mês · motivo registrado',{a:'start',s:11.5,f:DIM});
+ s+=txt(W/2,H-10,'Fi absoluta · Fri relativa · Fac acumulada · Frac relativa acumulada',{s:11,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function gavetas(){const W=540,H=350;let s=S(W,H);
+ // linha continua de valores caindo em gavetas
+ const vals=[3,6,8,11,13,15,16,18,19,22,25,27,33];
+ s+=`<line class="draw" pathLength="1" x1="40" y1="70" x2="500" y2="70" stroke="url(#ghU)" stroke-width="2.4"/>`;
+ vals.forEach((v,i)=>{const x=40+(v/40)*460;
+  s+=`<circle class="pop" style="--i:${i*0.5}" cx="${x}" cy="70" r="4.2" fill="${spectral(v/40)}"/>`});
+ s+=txt(270,46,'tempo de parada — qualquer valor entre 0 e 40 min',{s:11.5,f:GA});
+ const bins=[['0–9',3],['10–19',6],['20–29',3],['30–39',1]];
+ const bw=96,base=290,x0=60;
+ bins.forEach((b,i)=>{const h=b[1]*38;
+  s+=`<line class="fade2" x1="${x0+i*112+bw/2}" y1="86" x2="${x0+i*112+bw/2}" y2="${base-h-6}" stroke="${GA}" stroke-width="1" stroke-dasharray="3 4" opacity=".5"/>`;
+  s+=`<rect class="grow" style="--i:${i*1.3}" x="${x0+i*112}" y="${base-h}" width="${bw}" height="${h}" rx="3" fill="${spectral(i/3)}" opacity=".82"/>`;
+  s+=txt(x0+i*112+bw/2,base+17,b[0],{s:10.5});
+  s+=txt(x0+i*112+bw/2,base-h-9,String(b[1]),{s:11,f:spectral(i/3),cl:'fade3'})});
+ s+=`<line x1="40" y1="${base}" x2="500" y2="${base}" stroke="${AX}" stroke-width="1.2"/>`;
+ s+=txt(270,H-16,'você constrói as gavetas — a variável não vem com categorias',{s:11.5,f:SP[5],cl:'fade3'});
+ return s+'</svg>'}
+
+// ============ CAIXA 2 · RESUMIR (posição) ============
+function gangorra(){const W=520,H=360;let s=S(W,H);
+ const y=200,x0=60,x1=460,fx=232;
+ s+=`<line class="draw" pathLength="1" x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="url(#ghU)" stroke-width="4"/>`;
+ s+=`<path class="fade2" d="M ${fx-20} ${y+52} L ${fx} ${y+6} L ${fx+20} ${y+52} Z" fill="${K2}" opacity=".85"/>`;
+ s+=txt(fx,y+74,'X̄ = ponto de equilíbrio',{s:12,f:K2,cl:'fade2'});
+ const pts=[[95,1],[140,1],[185,1],[228,2],[275,1],[318,1],[400,1]];
+ pts.forEach((p,i)=>{for(let k=0;k<p[1];k++)
+  s+=`<circle class="pop" style="--i:${i}" cx="${p[0]}" cy="${y-14-k*20}" r="9" fill="${spectral(i/6)}" filter="url(#g1)"/>`});
+ s+=`<line class="fade3" x1="${fx}" y1="${y-96}" x2="${fx}" y2="${y-4}" stroke="${K2}" stroke-width="1.6" stroke-dasharray="4 4"/>`;
+ s+=txt(270,60,'cada observação é um peso na tábua',{s:13,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(400,y-40,'este puxa forte',{s:11,f:SP[5],cl:'fade3'});
+ s+=`<line class="fade3" x1="400" y1="${y-32}" x2="400" y2="${y-22}" stroke="${SP[5]}" stroke-width="1.4"/>`;
+ s+=txt(270,H-18,'a média sente TODOS os valores — inclusive os extremos',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function filaMediana(){const W=540,H=320;let s=S(W,H);
+ const v=[4.2,5.7,6.3,6.5,6.9,6.9,7.4,8.0,8.3];const n=v.length,mid=Math.floor(n/2);
+ v.forEach((x,i)=>{const cx=62+i*52,isM=i===mid;
+  s+=`<circle class="pop" style="--i:${i}" cx="${cx}" cy="150" r="${isM?24:19}" fill="${isM?K2:'rgba(20,28,38,.7)'}" stroke="${isM?K2:spectral(i/(n-1))}" stroke-width="2"/>`;
+  s+=txt(cx,155,x.toFixed(1),{s:isM?13:11.5,f:isM?'#0F1620':spectral(i/(n-1)),w:isM?700:400})});
+ s+=`<line class="fade2" x1="40" y1="150" x2="500" y2="150" stroke="${AX}" stroke-dasharray="3 4"/>`;
+ s+=txt(62+mid*52,100,'MEDIANA',{s:12,f:K2,cl:'fade2'});
+ s+=`<line class="fade2" x1="${62+mid*52}" y1="108" x2="${62+mid*52}" y2="124" stroke="${K2}" stroke-width="1.6"/>`;
+ s+=`<path class="draw d2" pathLength="1" d="M 46 210 L ${62+mid*52-30} 210" stroke="${SP[1]}" stroke-width="2"/>`;
+ s+=`<path class="draw d2" pathLength="1" d="M ${62+mid*52+30} 210 L 494 210" stroke="${SP[4]}" stroke-width="2"/>`;
+ s+=txt(150,230,'4 valores abaixo',{s:11,f:SP[1]});
+ s+=txt(400,230,'4 valores acima',{s:11,f:SP[4]});
+ s+=txt(270,62,'ordene e aponte o centro da fila',{s:13,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(270,290,'n ímpar → o do meio · n par → média dos dois centrais',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function cardapio(){const W=500,H=330;let s=S(W,H);
+ const d=[['3',2],['4',2],['5',1],['6',1],['7',1],['9',1],['12',1],['20',1]];
+ const base=240,bw=40;
+ d.forEach((c,i)=>{const h=c[1]*62,isMode=c[1]===2&&i<2;
+  s+=vbar(60+i*52,base,h,bw,isMode?SP[5]:'rgba(79,134,198,.55)',i,c[0],'');
+  if(isMode)s+=txt(60+i*52,base-h-10,'★',{s:14,f:SP[5],cl:'fade3'})});
+ s+=`<line x1="30" y1="${base}" x2="470" y2="${base}" stroke="${AX}" stroke-width="1.2"/>`;
+ s+=txt(250,58,'o valor que mais aparece',{s:13,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(250,290,'única medida de posição que também funciona em variável qualitativa',{s:11,f:DIM,cl:'fade3'});
+ s+=txt(250,308,'pode não existir · pode haver duas (bimodal)',{s:11,f:SP[5],cl:'fade3'});
+ return s+'</svg>'}
+function outlierPuxa(){const W=520,H=340;let s=S(W,H);
+ const base=210;
+ const v=[2,3,3,4,4,5,5,6];
+ v.forEach((x,i)=>{s+=`<circle class="pop" style="--i:${i}" cx="${60+x*38}" cy="${base-((i%3)*22)}" r="8" fill="${K1}" opacity=".8"/>`});
+ s+=`<circle class="pop" style="--i:9" cx="440" cy="${base}" r="11" fill="${SP[5]}" filter="url(#glow)"/>`;
+ s+=txt(440,base+26,'outlier',{s:11,f:SP[5]});
+ s+=`<line x1="30" y1="${base+8}" x2="480" y2="${base+8}" stroke="${AX}" stroke-width="1.2"/>`;
+ s+=`<line class="draw d2" pathLength="1" x1="212" y1="${base+30}" x2="212" y2="${base-104}" stroke="${K2}" stroke-width="2.4"/>`;
+ s+=txt(212,base-114,'MEDIANA · fica',{s:11.5,f:K2,cl:'fade2'});
+ s+=`<line class="draw d3" pathLength="1" x1="278" y1="${base+30}" x2="278" y2="${base-78}" stroke="${SP[5]}" stroke-width="2.4"/>`;
+ s+=txt(300,base-88,'MÉDIA · foi arrastada',{s:11.5,f:SP[5],cl:'fade3'});
+ s+=`<path class="fade3" d="M 216 ${base+46} L 274 ${base+46}" stroke="${SP[5]}" stroke-width="1.6" marker-end="url(#arwY)"/>`;
+ s+=txt(270,64,'um valor extremo entorta a gangorra',{s:13,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(270,H-16,'renda, preço de imóvel, tempo de resposta → prefira a mediana',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function amplitudeViz(){const W=520,H=310;let s=S(W,H);
+ const v=[10,12,14,15,15,16,16,16,18,20,22,30];const y=160;
+ const px=x=>50+((x-8)/24)*420;
+ v.forEach((x,i)=>{s+=`<circle class="pop" style="--i:${i}" cx="${px(x)}" cy="${y}" r="8" fill="${spectral(i/11)}" opacity=".85"/>`});
+ s+=`<line x1="34" y1="${y+30}" x2="490" y2="${y+30}" stroke="${AX}" stroke-width="1.2"/>`;
+ s+=`<line class="draw d2" pathLength="1" x1="${px(10)}" y1="${y-52}" x2="${px(30)}" y2="${y-52}" stroke="${SP[5]}" stroke-width="2.4" marker-end="url(#arwY)"/>`;
+ [[10,'mín'],[30,'máx']].forEach(m=>{s+=`<line class="fade2" x1="${px(m[0])}" y1="${y-44}" x2="${px(m[0])}" y2="${y+14}" stroke="${SP[5]}" stroke-width="1.4" stroke-dasharray="3 3"/>`;
+  s+=txt(px(m[0]),y+50,m[1]+' = '+m[0],{s:11.5,f:SP[5],cl:'fade2'})});
+ s+=txt((px(10)+px(30))/2,y-62,'amplitude = 30 − 10 = 20 min',{s:13,f:SP[5],cl:'fade3'});
+ s+=txt(260,60,'só olha as duas pontas',{s:13.5,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(260,H-16,'ignora tudo que acontece no meio — por isso é frágil',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function varianciaQuadrados(){const W=560,H=326;let s=S(W,H);
+ // cada quadrado tem LADO = |Xi - X̄|: um lado apoiado na media, o ponto no lado oposto
+ const v=[[62,-40],[134,20],[206,-14],[278,34],[350,-26],[422,44],[494,-18]];
+ const my=178;
+ s+=`<line class="draw" pathLength="1" x1="34" y1="${my}" x2="${W-30}" y2="${my}" stroke="${K2}" stroke-width="2.2"/>`;
+ s+=txt(W-24,my+4,'X̄',{s:14,f:K2,a:'start',ff:'Lora'});
+ v.forEach((p,i)=>{const d=p[1],sz=Math.abs(d),y=my+d,col=spectral(i/6);
+  s+=`<rect class="pop" style="--i:${i*1.2}" x="${(p[0]-sz/2).toFixed(1)}" y="${(d<0?y:my).toFixed(1)}" width="${sz}" height="${sz}" fill="${col}" opacity=".22" stroke="${col}" stroke-width="1.5"/>`;
+  s+=`<line class="fade2" x1="${p[0]}" y1="${my}" x2="${p[0]}" y2="${y}" stroke="${col}" stroke-width="1.2" stroke-dasharray="3 3" opacity=".75"/>`;
+  s+=`<circle class="pop" style="--i:${i}" cx="${p[0]}" cy="${y}" r="5.5" fill="${col}"/>`;
+  s+=txt(p[0],d<0?y-13:y+19,(d<0?'+':'−')+sz,{s:10.5,f:col,cl:'fade3'})});
+  s+=txt(280,52,'a área do erro',{s:14,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(280,74,'o lado do quadrado é o desvio · a área é o desvio ao quadrado',{s:11.5,f:GA});
+ s+=txt(280,H-38,'elevar ao quadrado apaga o sinal — sobra só a distância',{s:11.5,f:SP[5],cl:'fade3'});
+ s+=txt(280,H-16,'a variância é a média dessas áreas — dividida por n − 1',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function desvioVolta(){const W=520,H=300;let s=S(W,H);
+ s+=`<rect class="grow" style="--i:0" x="60" y="90" width="150" height="110" rx="6" fill="rgba(145,104,214,.14)" stroke="${K4}" stroke-width="2"/>`;
+ s+=txt(135,138,'S²',{s:30,f:K4,ff:'Lora'});
+ s+=txt(135,168,'em «minutos ao quadrado»',{s:10.5,f:GA});
+ s+=txt(135,218,'unidade que não existe',{s:11,f:SP[5],cl:'fade2'});
+ s+=`<path class="draw d2" pathLength="1" d="M 232 145 L 296 145" stroke="${SP[4]}" stroke-width="2.4" marker-end="url(#arw)"/>`;
+ s+=txt(264,130,'√',{s:22,f:SP[4],ff:'Lora',cl:'fade2'});
+ s+=`<rect class="grow" style="--i:3" x="316" y="90" width="150" height="110" rx="6" fill="rgba(47,184,154,.14)" stroke="${K2}" stroke-width="2"/>`;
+ s+=txt(391,138,'S',{s:30,f:K2,ff:'Lora'});
+ s+=txt(391,168,'em minutos',{s:10.5,f:GA});
+ s+=txt(391,218,'comparável com a média',{s:11,f:K2,cl:'fade3'});
+ s+=txt(260,54,'a raiz devolve a unidade original',{s:13.5,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(260,H-18,'reporte sempre o desvio padrão — a variância é só o passo do meio',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function cvComparacao(){const W=540,H=330;let s=S(W,H);
+ const items=[['Linha A · setup (min)','X̄ = 20','S = 2','CV = 10%',K2,10],['Linha B · setup (min)','X̄ = 50','S = 4','CV = 8%',SP[5],8]];
+ items.forEach((it,i)=>{const y=100+i*118;
+  s+=`<rect class="grow" style="--i:${i*2}" x="52" y="${y-38}" width="200" height="86" rx="6" fill="rgba(20,28,38,.55)" stroke="${it[4]}" stroke-width="1.6"/>`;
+  s+=txt(152,y-14,it[0],{s:13,f:INK,ff:'Inter'});
+  s+=txt(152,y+8,it[1]+'  ·  '+it[2],{s:11.5,f:GA});
+  s+=txt(152,y+32,'o S maior não perde',{s:10.5,f:DIM});
+  s+=`<path class="draw ${i?'d2':''}" pathLength="1" d="M 268 ${y} L 320 ${y}" stroke="${it[4]}" stroke-width="2" marker-end="url(#arwT)"/>`;
+  const bw=it[5]*4.2;
+  s+=`<rect class="grow" style="--i:${3+i*2}" x="340" y="${y-16}" width="${bw}" height="32" rx="3" fill="${it[4]}" opacity=".8"/>`;
+  s+=txt(340+bw+46,y+5,it[3],{s:13,f:it[4],a:'middle',cl:'fade3'})});
+ s+=txt(270,52,'quem é mais regular: A ou B?',{s:13.5,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(270,H-16,'CV = S / X̄ · 100 — menor CV = valores mais homogêneos',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function reguaPercentil(){const W=540,H=330;let s=S(W,H);
+ const x0=44,x1=496,y=170;
+ s+=`<line class="draw" pathLength="1" x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="url(#ghU)" stroke-width="3.4"/>`;
+ for(let p=0;p<=100;p+=5){const x=x0+(p/100)*(x1-x0),big=p%25===0;
+  s+=`<line class="fade2" x1="${x}" y1="${y}" x2="${x}" y2="${y+(big?18:10)}" stroke="${big?INK:GA}" stroke-width="${big?1.8:1}" opacity="${big?1:.5}"/>`;
+  if(big)s+=txt(x,y+36,'P'+p,{s:11.5,f:spectral(p/100),cl:'fade2'})}
+ [[14,'P14'],[42,'P42'],[60,'P60']].forEach((p,i)=>{const x=x0+(p[0]/100)*(x1-x0);
+  s+=`<circle class="pop" style="--i:${4+i*1.4}" cx="${x}" cy="${y}" r="7" fill="${spectral(p[0]/100)}" filter="url(#g1)"/>`;
+  s+=txt(x,y-18,p[1],{s:11.5,f:spectral(p[0]/100),cl:'fade3'})});
+ s+=txt(270,72,'a régua de 100 marcas',{s:14,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(270,96,'não pergunta «quanto» — pergunta «quantos ficaram para trás»',{s:11.5,f:GA});
+ s+=txt(270,272,'Pos(Pi) = (n − 1) · Pi/100 + 1',{s:15,f:SP[5],ff:'Lora',cl:'fade3'});
+ s+=txt(270,296,'a fórmula devolve a POSIÇÃO na fila ordenada, não o valor',{s:11,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function boxplotQuartis(){const W=540,H=340;let s=S(W,H);
+ const x0=60,x1=490,y=170,h=54;
+ const q=[0,.18,.42,.66,1];
+ const px=t=>x0+t*(x1-x0);
+ s+=`<line class="draw" pathLength="1" x1="${px(q[0])}" y1="${y}" x2="${px(q[1])}" y2="${y}" stroke="${GA}" stroke-width="1.8"/>`;
+ s+=`<line class="draw" pathLength="1" x1="${px(q[3])}" y1="${y}" x2="${px(q[4])}" y2="${y}" stroke="${GA}" stroke-width="1.8"/>`;
+ [q[0],q[4]].forEach(t=>{s+=`<line class="fade2" x1="${px(t)}" y1="${y-16}" x2="${px(t)}" y2="${y+16}" stroke="${GA}" stroke-width="1.8"/>`});
+ s+=`<rect class="grow" style="--i:2" x="${px(q[1])}" y="${y-h/2}" width="${px(q[3])-px(q[1])}" height="${h}" rx="3" fill="rgba(47,184,154,.18)" stroke="${K2}" stroke-width="2"/>`;
+ s+=`<line class="draw d2" pathLength="1" x1="${px(q[2])}" y1="${y-h/2}" x2="${px(q[2])}" y2="${y+h/2}" stroke="${SP[5]}" stroke-width="3"/>`;
+ const labs=[[q[0],'mín','25%'],[q[1],'Q1 = P25','25%'],[q[2],'Q2 = P50<tspan> </tspan>','25%'],[q[3],'Q3 = P75','25%'],[q[4],'máx','']];
+ labs.forEach((L,i)=>{s+=txt(px(L[0]),y-h/2-16,L[1].replace(/<[^>]*>/g,''),{s:11.5,f:i===2?SP[5]:(i===0||i===4?GA:K2),cl:'fade3'})});
+ for(let i=0;i<4;i++){const a=px(q[i]),b=px(q[i+1]);
+  s+=`<line class="fade3" x1="${a+4}" y1="${y+h/2+26}" x2="${b-4}" y2="${y+h/2+26}" stroke="${spectral(i/3)}" stroke-width="2"/>`;
+  s+=txt((a+b)/2,y+h/2+46,'25%',{s:11,f:spectral(i/3),cl:'fade3'})}
+ s+=txt(270,64,'cortar o bolo em quatro partes iguais',{s:13.5,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(270,H-14,'Q2 é exatamente a mediana · a caixa contém os 50% centrais',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function familiaRegua(){const W=580,H=330;let s=S(W,H);
+ const x0=106,x1=436;
+ const rows=[['PERCENTIL',100,K1,80],['DECIL',10,K2,170],['QUARTIL',4,K3,260]];
+ rows.forEach((r,ri)=>{const y=r[3];
+  s+=`<line class="draw ${ri?'d2':''}" pathLength="1" x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${r[2]}" stroke-width="2.6"/>`;
+  const n=r[1],step=n>20?5:1;
+  for(let k=0;k<=n;k+=step){const x=x0+(k/n)*(x1-x0);
+   s+=`<line class="fade2" x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="${r[2]}" stroke-width="1.2" opacity=".7"/>`}
+  s+=txt(x0-12,y+5,r[0],{s:11.5,f:r[2],a:'end'});
+  s+=txt(x1+12,y+5,n+' partes',{s:11,f:DIM,a:'start',cl:'fade3'})});
+ // linha de correspondencia
+ [[.25,'P25 = Q1'],[.5,'P50 = D5 = Q2'],[.75,'P75 = Q3']].forEach((c,i)=>{const x=x0+c[0]*(x1-x0);
+  s+=`<line class="fade3" x1="${x}" y1="72" x2="${x}" y2="268" stroke="${SP[5]}" stroke-width="1.2" stroke-dasharray="3 4" opacity=".65"/>`;
+  s+=txt(x,60,c[1],{s:10.5,f:SP[5],cl:'fade3'})});
+ s+=txt(290,H-14,'uma única fórmula de posição gera as três famílias',{s:12,f:INK,cl:'fade3'});
+ return s+'</svg>'}
+function fichaIdentidade(){const W=560,H=380;let s=S(W,H);
+ const hist=[3,7,14,22,19,13,9,6,4,3];const base=254,x0=54,bw=44;
+ hist.forEach((v,i)=>{s+=vbar(x0+i*46+bw/2,base,v*6.1,bw-6,spectral(i/9),i,'','')});
+ s+=`<line x1="${x0-8}" y1="${base}" x2="${x0+10*46}" y2="${base}" stroke="${AX}" stroke-width="1.2"/>`;
+ // boxplot alinhado abaixo
+ const by=302;const bx=x=>x0+x*46;
+ s+=`<line class="draw d3" pathLength="1" x1="${bx(0.4)}" y1="${by}" x2="${bx(1.6)}" y2="${by}" stroke="${GA}" stroke-width="1.6"/>`;
+ s+=`<line class="draw d3" pathLength="1" x1="${bx(6.2)}" y1="${by}" x2="${bx(9.4)}" y2="${by}" stroke="${GA}" stroke-width="1.6"/>`;
+ s+=`<rect class="fade3" x="${bx(1.6)}" y="${by-19}" width="${bx(6.2)-bx(1.6)}" height="38" rx="3" fill="rgba(47,184,154,.16)" stroke="${K2}" stroke-width="1.8"/>`;
+ s+=`<line class="fade3" x1="${bx(3.4)}" y1="${by-19}" x2="${bx(3.4)}" y2="${by+19}" stroke="${SP[5]}" stroke-width="2.6"/>`;
+ s+=txt(280,54,'a ficha da variável: 100 tempos de parada',{s:14,f:INK,ff:'Lora',st:'italic'});
+ const chips=[['CENTRO','X̄ · Md · Mo',K1],['ESPALHAMENTO','S · CV',K2],['POSIÇÃO','Q1 · Q3',SP[5]]];
+ chips.forEach((c,i)=>{const x=110+i*170;
+  s+=`<rect class="fade3" x="${x-72}" y="${H-56}" width="144" height="42" rx="5" fill="rgba(20,28,38,.6)" stroke="${c[2]}" stroke-width="1.4"/>`;
+  s+=txt(x,H-38,c[0],{s:10.5,f:c[2]});s+=txt(x,H-22,c[1],{s:11.5,f:INK,ff:'Lora'})});
+ s+=txt(280,82,'nenhuma medida sozinha descreve nada — as três juntas fazem o retrato',{s:11.5,f:GA});
+ return s+'</svg>'}
+
+// ============ CAIXA 3 · RELACIONAR ============
+function portoesSerie(){const W=540,H=300;let s=S(W,H);
+ const y=150;
+ s+=`<circle class="pop" style="--i:0" cx="70" cy="${y}" r="18" fill="${SP[5]}" filter="url(#g1)"/>`;
+ [['A','0,5',K1,180],['B','0,5',K2,320]].forEach((g,i)=>{
+  s+=`<line class="draw ${i?'d2':''}" pathLength="1" x1="${i?216:94}" y1="${y}" x2="${g[3]-38}" y2="${y}" stroke="${GA}" stroke-width="2" marker-end="url(#arwT)"/>`;
+  s+=`<rect class="grow" style="--i:${i*2}" x="${g[3]-30}" y="${y-46}" width="60" height="92" rx="5" fill="rgba(20,28,38,.6)" stroke="${g[2]}" stroke-width="2"/>`;
+  s+=txt(g[3],y-14,'portão '+g[0],{s:10.5,f:g[2]});
+  s+=txt(g[3],y+18,'P = '+g[1],{s:13,f:INK,ff:'Lora'})});
+ s+=`<line class="draw d3" pathLength="1" x1="356" y1="${y}" x2="438" y2="${y}" stroke="${SP[4]}" stroke-width="2.4" marker-end="url(#arwT)"/>`;
+ s+=`<circle class="pop" style="--i:7" cx="470" cy="${y}" r="24" fill="none" stroke="${SP[4]}" stroke-width="2.4"/>`;
+ s+=txt(470,y+5,'0,25',{s:13,f:SP[4],ff:'Lora'});
+ s+=txt(270,54,'dois portões em série',{s:14,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(270,232,'P(A e B) = P(A) × P(B)   — se independentes',{s:13.5,f:SP[5],ff:'Lora',cl:'fade3'});
+ s+=txt(270,262,'exigir as duas coisas SEMPRE encolhe a chance',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+function vennAdicao(){const W=520,H=310;let s=S(W,H);
+ const cy=160,r=78;
+ s+=`<circle class="pop" style="--i:0" cx="210" cy="${cy}" r="${r}" fill="${K1}" opacity=".28" stroke="${K1}" stroke-width="2"/>`;
+ s+=`<circle class="pop" style="--i:2" cx="310" cy="${cy}" r="${r}" fill="${K2}" opacity=".28" stroke="${K2}" stroke-width="2"/>`;
+ s+=txt(168,cy+5,'A',{s:20,f:K1,ff:'Lora'});
+ s+=txt(352,cy+5,'B',{s:20,f:K2,ff:'Lora'});
+ s+=`<ellipse class="fade3" cx="260" cy="${cy}" rx="28" ry="60" fill="${SP[5]}" opacity=".32"/>`;
+ s+=txt(260,cy+5,'A∩B',{s:12,f:'#0F1620',w:700});
+ s+=`<line class="fade3" x1="260" y1="${cy+66}" x2="260" y2="${cy+92}" stroke="${SP[5]}" stroke-width="1.4"/>`;
+ s+=txt(260,cy+110,'contado duas vezes — descontar',{s:11,f:SP[5],cl:'fade3'});
+ s+=txt(260,52,'dois círculos sobrepostos',{s:14,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(260,H-14,'P(A ou B) = P(A) + P(B) − P(A e B)',{s:14,f:INK,ff:'Lora',cl:'fade3'});
+ return s+'</svg>'}
+function condicionalUniverso(){const W=540,H=320;let s=S(W,H);
+ s+=`<rect class="grow" style="--i:0" x="42" y="90" width="190" height="150" rx="6" fill="rgba(20,28,38,.5)" stroke="${GA}" stroke-width="1.6"/>`;
+ for(let i=0;i<24;i++){const x=58+(i%6)*30,y=108+Math.floor(i/6)*32,inA=i%5===0;
+  s+=`<circle class="pop" style="--i:${i*0.3}" cx="${x}" cy="${y}" r="7" fill="${inA?SP[5]:GA}" opacity="${inA?.95:.35}"/>`}
+ s+=txt(137,262,'universo completo · 24',{s:11,f:GA});
+ s+=`<path class="draw d2" pathLength="1" d="M 250 165 L 306 165" stroke="${K2}" stroke-width="2.4" marker-end="url(#arwT)"/>`;
+ s+=txt(278,146,'B ocorreu',{s:10.5,f:K2,cl:'fade2'});
+ s+=`<rect class="grow" style="--i:5" x="326" y="118" width="170" height="94" rx="6" fill="rgba(47,184,154,.10)" stroke="${K2}" stroke-width="1.8"/>`;
+ for(let i=0;i<8;i++){const x=352+(i%4)*38,y=146+Math.floor(i/4)*36,inA=i<3;
+  s+=`<circle class="pop" style="--i:${8+i*0.4}" cx="${x}" cy="${y}" r="8" fill="${inA?SP[5]:GA}" opacity="${inA?.95:.35}"/>`}
+ s+=txt(411,234,'universo encolhido · 8',{s:11,f:K2,cl:'fade3'});
+ s+=txt(270,54,'a informação nova encolhe o mundo possível',{s:13.5,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(270,H-14,'P(A|B) = P(A e B) / P(B)  — dividir pelo novo universo',{s:13,f:SP[5],ff:'Lora',cl:'fade3'});
+ return s+'</svg>'}
+function sinteseFluxo(){const W=580,H=340;let s=S(W,H);
+ const bs=[['1','ORGANIZAR','tipo + tabela',K1],['2','CENTRO','média·mediana·moda',K2],['3','ESPALHAMENTO','desvio padrão·CV',K3],['4','POSIÇÃO','quartil·decil',K4]];
+ bs.forEach((b,i)=>{const x=76+i*140,y=170;
+  s+=`<circle class="pop" style="--i:${i*2}" cx="${x}" cy="${y}" r="46" fill="rgba(20,28,38,.6)" stroke="${b[3]}" stroke-width="2.4"/>`;
+  s+=txt(x,y-6,b[0],{s:24,f:b[3],ff:'Lora',w:700});
+  s+=txt(x,y+18,b[1],{s:9.5,f:INK});
+  s+=txt(x,y+72,b[2],{s:10,f:GA,cl:'fade3'});
+  if(i<3)s+=`<line class="draw ${i?(i===1?'d2':'d3'):''}" pathLength="1" x1="${x+50}" y1="${y}" x2="${x+88}" y2="${y}" stroke="${GA}" stroke-width="2" marker-end="url(#arwT)"/>`});
+ s+=txt(290,60,'um roteiro só — sempre nesta ordem',{s:14.5,f:INK,ff:'Lora',st:'italic'});
+ s+=txt(290,H-14,'antes de abrir qualquer planilha, saiba em qual caixa você está',{s:11.5,f:DIM,cl:'fade3'});
+ return s+'</svg>'}
+window.VIZ={capaFunil,quatroCaixas,crachaRegua,degrauRampa,urnaFreq,escadaAcum,anatomiaTabela,gavetas,gangorra,filaMediana,cardapio,outlierPuxa,amplitudeViz,varianciaQuadrados,desvioVolta,cvComparacao,reguaPercentil,boxplotQuartis,familiaRegua,fichaIdentidade,portoesSerie,vennAdicao,condicionalUniverso,sinteseFluxo};</script>
+<script>
+const deck=document.getElementById('deck');
+document.querySelectorAll('[data-viz]').forEach(el=>{const fn=window.VIZ[el.dataset.viz];if(fn){try{el.innerHTML=fn();}catch(e){console.error(el.dataset.viz,e);}}else{console.warn('viz ausente:',el.dataset.viz);}});
+const slides=[...deck.querySelectorAll('.slide')];let i=0;const tot=slides.length;
+document.getElementById('tot').textContent=String(tot).padStart(2,'0');
+const prog=document.getElementById('prog');
+function show(n){
+ const target=Math.max(0,Math.min(tot-1,n));
+ const dir=target>=i?1:-1;
+ if(target!==i){
+   const out=slides[i];
+   out.style.setProperty('--dir',dir);
+   out.classList.remove('active'); out.classList.add('leaving');
+   setTimeout(()=>out.classList.remove('leaving'),440);
+ }
+ i=target;
+ const inc=slides[i];
+ inc.style.setProperty('--dir',dir);
+ inc.classList.add('active');
+ document.getElementById('cur').textContent=String(i+1).padStart(2,'0');
+ prog.style.width=((i+1)/tot*100)+'%';
+ slides.forEach(s=>s.querySelectorAll('.answer').forEach(a=>a.classList.remove('show')));}
+function tg(){const a=slides[i].querySelector('.answer');if(a)a.classList.toggle('show');}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();show(i+1);}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(i-1);}else if(e.key==='Home')show(0);else if(e.key==='End')show(tot-1);else if(e.key.toLowerCase()==='r')tg();});
+deck.addEventListener('click',e=>{if(e.target.closest('.answer'))return;show(e.clientX/window.innerWidth<0.32?i-1:i+1);});
+let tx=0;deck.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+deck.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)show(dx<0?i+1:i-1);});
+show(0);
+</script>
+</body></html>
